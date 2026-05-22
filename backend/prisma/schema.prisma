@@ -1,0 +1,90 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model role {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  users user[]
+}
+
+model user {
+  id              Int              @id @default(autoincrement())
+  name            String
+  alamat          String?
+  noTelp          String?          @db.VarChar(13)
+  email           String?          @unique
+  password        String?
+  image           String?
+  roleId          Int
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  deliveryDrivers deliveryDriver[]
+  orders          order[]
+  role            role             @relation(fields: [roleId], references: [id])
+}
+
+model price {
+  id         Int     @id @default(autoincrement())
+  provinsi   String
+  kota       String
+  hargaTarif Decimal @db.Decimal(10, 2)
+  orders     order[]
+}
+
+model order {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  priceId     Int?
+  deliveryId  Int?
+  noSpb       String
+  koli        Int
+  berat       Int
+  alamaTujuan String
+  hargaCustom Decimal? @db.Decimal(10, 2)
+  ket         String?
+  prioritas   String
+  status      String?  @default("Belum Lunas")
+  total       Decimal  @db.Decimal(10, 2)
+  image       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  delivery    deliver? @relation(fields: [deliveryId], references: [id])
+  price       price?   @relation(fields: [priceId], references: [id])
+  user        user     @relation(fields: [userId], references: [id])
+}
+
+model deliver {
+  id             Int              @id @default(autoincrement())
+  name           String?
+  bb             Decimal          @db.Decimal(10, 2)
+  tanggalJalan   DateTime
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  deliverStatus  deliverStatus[]
+  deliveryDriver deliveryDriver[]
+  order          order[]
+}
+
+model deliveryDriver {
+  id        Int      @id @default(autoincrement())
+  deliverId Int
+  userId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deliver   deliver  @relation(fields: [deliverId], references: [id])
+  user      user     @relation(fields: [userId], references: [id])
+}
+
+model deliverStatus {
+  id               Int      @id @default(autoincrement())
+  statusPengiriman String
+  deliverId        Int
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  deliver          deliver  @relation(fields: [deliverId], references: [id])
+}
