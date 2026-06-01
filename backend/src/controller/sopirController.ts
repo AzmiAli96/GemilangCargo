@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
-import { deleteDriverId, getAllDriver, getAllDriverPaginate, postDriver } from "../service/deliverDriverService";
+import { deleteSopirId, getAllSopir, getAllSopirPaginate, postSopir, putSopir } from "../service/sopirService";
 
-export const getDriverController = async (req: Request, res: Response) => {
+export const getSopirController = async (req: Request, res: Response) => {
     try {
-        const driver = await getAllDriver();
-        res.status(200).json(driver);
+        const sopir = await getAllSopir();
+        res.status(200).json(sopir);
     } catch (error: any) {
         res.status(500).json({ error: error.message });
     }
@@ -16,7 +16,7 @@ export const getDeliveryPaginateController = async (req: Request, res: Response)
         const limit = Number(req.query.limit) || 10;
         const search = String(req.query.search) || "";
 
-        const result = await getAllDriverPaginate({ page, limit, search });
+        const result = await getAllSopirPaginate({ page, limit, search });
         res.status(200).json({
             message: "Berhasil mendapatkan data price",
             data: result,
@@ -27,19 +27,19 @@ export const getDeliveryPaginateController = async (req: Request, res: Response)
     }
 }
 
-export const postDriverController = async (req: Request, res: Response) => {
+export const postSopirController = async (req: Request, res: Response) => {
     try {
-        const driver = await postDriver(req.body);
-        res.status(201).json(driver);
+        const sopir = await postSopir(req.body);
+        res.status(201).json(sopir);
     } catch (error: any) {
         res.status(400).json({ error: error.message });
     }
 }
 
-export const putDriverController = async (req: Request, res: Response) => {
+export const putSopirController = async (req: Request, res: Response) => {
     try {
         const id = Number(req.params.id);
-        const result = await postDriver(req.body);
+        const result = await putSopir(id, req.body);
 
         res.status(201).json({
             message: "Delivery berhasil diupdate",
@@ -52,10 +52,10 @@ export const putDriverController = async (req: Request, res: Response) => {
     }
 }
 
-export const deleteDriverController = async (req: Request, res: Response) => {
+export const deleteSopirController = async (req: Request, res: Response) => {
     try {
         const id = Number(req.params.id);
-        const result = await deleteDriverId(id);
+        const result = await deleteSopirId(id);
         res.status(200).json({
             message: "Delivery berhasil dihapus",
             data: result

@@ -1,10 +1,10 @@
 export interface userData {
     id: number;
+    roleId: number;
     email: string;
     password: string;
     name: string;
     alamat: string;
-    noTelp: string;
-    roleId: number;
+    noHp: string;
     image: string;
 }

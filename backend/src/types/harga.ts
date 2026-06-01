@@ -1,4 +1,4 @@
-export interface priceData {
+export interface hargaData {
     id: number;
     provinsi: string;
     kota: string;

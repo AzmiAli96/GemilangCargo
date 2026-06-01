@@ -1,17 +1,17 @@
-import { FilterHarga, orderData } from "../types/order";
+import { FilterHarga, pesananData } from "../types/pesanan";
 import prisma from "../db/prisma";
 
-export const getOrder = async (
+export const getpesanan = async (
     skip: number,
     take: number,
     search: string,
     filterHarga: FilterHarga = "semua",
-    deliveryId?: any) => {
+    pengiriman?: any) => {
     const isNumber = !isNaN(Number(search));
     const searchWhere = search ? {
         OR: [
             { noSpb: { contains: search, mode: "insensitive" as const } },
-            { alamaTujuan: { contains: search, mode: "insensitive" as const } },
+            { tujuan: { contains: search, mode: "insensitive" as const } },
             { prioritas: { contains: search, mode: "insensitive" as const } },
             ...(isNumber
                 ? [{ koli: Number(search) }]
@@ -23,48 +23,48 @@ export const getOrder = async (
     } : {};
 
     const hargaWhere =
-        filterHarga === "priceId"
-            ? { priceId: { not: null } }         // hanya yang ada priceId
+        filterHarga === "hargaId"
+            ? { hargaId: { not: null } }         // hanya yang ada hargaId
             : filterHarga === "hargaCustom"
                 ? { hargaCustom: { not: null } }      // hanya yang ada hargaCustom
                 : {};                                  // semua
 
-    let deliveryWhere = {};
-    if (deliveryId === "null") {
-        deliveryWhere = { deliveryId: null };
-    } else if (deliveryId) {
-        deliveryWhere = { deliveryId: Number(deliveryId) };
+    let pengirimanWhere = {};
+    if (pengiriman === "null") {
+        pengirimanWhere = { pengirimanId: null };
+    } else if (pengiriman) {
+        pengirimanWhere = { pengirimanId: Number(pengiriman) };
     }
 
-    return await prisma.order.findMany({
+    return await prisma.pesanan.findMany({
         skip,
         take,
         where: {
             ...searchWhere,
             ...hargaWhere,
-            ...deliveryWhere,
+            ...pengirimanWhere,
         },
         orderBy: {
             id: "desc",
         },
         include: {
             user: true,
-            price: true,
-            delivery: true
+            harga: true,
+            pengiriman: true
         }
     });
 }
 
 
-export const countOrder = async (
+export const countpesanan = async (
     search: string,
     filterHarga: FilterHarga = "semua",
-    deliveryId?: any) => {
+    pengiriman?: any) => {
     const isNumber = !isNaN(Number(search));
     const searchWhere = search ? {
         OR: [
             { noSpb: { contains: search, mode: "insensitive" as const } },
-            { alamaTujuan: { contains: search, mode: "insensitive" as const } },
+            { tujuan: { contains: search, mode: "insensitive" as const } },
             { prioritas: { contains: search, mode: "insensitive" as const } },
             ...(isNumber
                 ? [{ koli: Number(search) }]
@@ -76,93 +76,94 @@ export const countOrder = async (
     } : {};
 
     const hargaWhere =
-        filterHarga === "priceId"
-            ? { priceId: { not: null } }         // hanya yang ada priceId
+        filterHarga === "hargaId"
+            ? { hargaId: { not: null } }         // hanya yang ada hargaId
             : filterHarga === "hargaCustom"
                 ? { hargaCustom: { not: null } }      // hanya yang ada hargaCustom
                 : {};
 
-    let deliveryWhere = {};
-    if (deliveryId === "null") {
-        deliveryWhere = { deliveryId: null };
-    } else if (deliveryId) {
-        deliveryWhere = { deliveryId: Number(deliveryId) };
+    let pengirimanWhere = {};
+    if (pengiriman === "null") {
+        pengirimanWhere = { pengirimanId: null };
+    } else if (pengiriman) {
+        pengirimanWhere = { pengirimanId: Number(pengiriman) };
     }
 
-    return await prisma.order.count({
+    return await prisma.pesanan.count({
         where: {
             ...searchWhere,
             ...hargaWhere,
-            ...deliveryWhere,
+            ...pengirimanWhere,
         }
     });
 }
 
-export const OrderById = async (id: number) => {
-    const order = await prisma.order.findUnique({
+export const pesananById = async (id: number) => {
+    const pesanan = await prisma.pesanan.findUnique({
         where: { id: id },
     });
-    return order;
+    return pesanan;
 }
 
-export const createOrder = async (item: orderData) => {
-    const order = await prisma.order.create({
+export const createpesanan = async (item: pesananData) => {
+    const pesanan = await prisma.pesanan.create({
         data: {
             userId: item.userId,
-            priceId: item.priceId,
-            deliveryId: item.deliveryId,
+            hargaId: item.hargaId,
+            pengirimanId: item.pengirimanId,
             noSpb: item.noSpb,
             koli: item.koli,
             berat: item.berat,
-            alamaTujuan: item.alamaTujuan,
+            tujuan: item.tujuan,
             hargaCustom: item.hargaCustom,
             ket: item.ket,
             prioritas: item.prioritas,
             total: item.total
         },
     });
-    return order;
+    return pesanan;
 }
 
-export const updateOrder = async (id: number, item: orderData) => {
-    const order = await prisma.order.update({
+export const updatepesanan = async (id: number, item: pesananData) => {
+    const pesanan = await prisma.pesanan.update({
         where: { id: id },
         data: {
             userId: item.userId,
-            priceId: item.priceId,
-            deliveryId: item.deliveryId,
+            hargaId: item.hargaId,
+            pengirimanId: item.pengirimanId,
             noSpb: item.noSpb,
             koli: item.koli,
             berat: item.berat,
-            alamaTujuan: item.alamaTujuan,
+            tujuan: item.tujuan,
             hargaCustom: item.hargaCustom,
             ket: item.ket,
             prioritas: item.prioritas,
-            status: item.status,
+            statusPay: item.statusPay,
+            tanggalMasuk: item.tanggalMasuk,
             image: item.image,
             total: item.total,
         },
     });
-    return order;
+    return pesanan;
 }
 
-export const deleteOrder = async (id: number) => {
-    const order = await prisma.order.delete({
+export const deletepesanan = async (id: number) => {
+    const pesanan = await prisma.pesanan.delete({
         where: { id }
     });
-    return order;
+    return pesanan;
 }
 
-export const assignOrderToDelivery = async (orderIds: number[], deliveryId: number) => {
-    return await prisma.order.updateMany({
+export const assignpesananToPengiriman = async (pesananIds: number[], pengiriman: number) => {
+    return await prisma.pesanan.updateMany({
         where: {
             id: {
-                in: orderIds,
+                in: pesananIds,
             },
-            deliveryId: null,
+            pengirimanId: null,
         },
         data: {
-            deliveryId: deliveryId,
+            pengirimanId: pengiriman,
         },
     });
 };

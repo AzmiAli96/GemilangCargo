@@ -10,8 +10,8 @@ async function main() {
         data: [
             { name: "admin" },
             { name: "staff" },
-            { name: "driver" },
-            { name: "customer" }
+            { name: "sopir" },
+            { name: "pelanggan" }
         ],
         skipDuplicates: true
     })
@@ -30,12 +30,12 @@ async function main() {
         where: { name: "staff" }
     })
 
-    const driverRole = await prisma.role.findUnique({
-        where: { name: "driver" }
+    const sopirRole = await prisma.role.findUnique({
+        where: { name: "sopir" }
     })
 
-    const customerRole = await prisma.role.findUnique({
-        where: { name: "customer" }
+    const pelangganRole = await prisma.role.findUnique({
+        where: { name: "pelanggan" }
     })
 
 
@@ -46,7 +46,7 @@ async function main() {
             {
                 name: "Admin",
                 alamat: "Bukittinggi",
-                noTelp: "082199175396",
+                noHp: "082199175396",
                 email: "admin@gmail.com",
                 password: hashedPassword,
                 roleId: adminRole!.id
@@ -54,25 +54,25 @@ async function main() {
             {
                 name: "Aur Kuning staff",
                 alamat: "aur kuning",
-                noTelp: "081234567891",
+                noHp: "081234567891",
                 email: "aurkuning@gmail.com",
                 password: hashedPassword,
                 roleId: staffRole!.id
             },
             {
-                name: "Driver 1",
-                noTelp: "081234567892",
-                email: "driver@gmail.com",
+                name: "sopir 1",
+                noHp: "081234567892",
+                email: "sopir@gmail.com",
                 password: hashedPassword,
-                roleId: driverRole!.id
+                roleId: sopirRole!.id
             },
             {
-                name: "Customer 1",
+                name: "Pelanggan 1",
                 alamat: "Padang",
-                noTelp: "081234567891",
+                noHp: "081234567893",
                 email: "customer@gmail.com",
                 password: hashedPassword,
-                roleId: customerRole!.id
+                roleId: pelangganRole!.id
             },
         ],
         skipDuplicates: true
@@ -84,7 +84,7 @@ async function main() {
     // SEED PRICE
     // ====================
 
-    await prisma.price.createMany({
+    await prisma.harga.createMany({
         data: [
             // SUMATERA BARAT
             { provinsi: "SUMATERA BARAT", kota: "DAERAH BUKITTINGGI", hargaTarif: 2500 },

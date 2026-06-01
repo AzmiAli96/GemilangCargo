@@ -43,7 +43,7 @@ export const login = async (item: userData) => {
         email: user.email,
         name: user.name,
         alamat: user.alamat,
-        noTelp: user.noTelp,
+        noHp: user.noHp,
         roleId: user.roleId
     }
 

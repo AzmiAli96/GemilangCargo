@@ -13,78 +13,82 @@ model role {
 }
 
 model user {
-  id              Int              @id @default(autoincrement())
-  name            String
-  alamat          String?
-  noTelp          String?          @db.VarChar(13)
-  email           String?          @unique
-  password        String?
-  image           String?
-  roleId          Int
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  deliveryDrivers deliveryDriver[]
-  orders          order[]
-  role            role             @relation(fields: [roleId], references: [id])
+  id        Int       @id @default(autoincrement())
+  roleId    Int
+  name      String    @db.VarChar(100)
+  alamat    String?   @db.VarChar(255)
+  noHp      String?   @db.VarChar(13)
+  email     String?   @unique
+  password  String?
+  image     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  sopir     sopir[]
+  pesanan   pesanan[]
+  role      role      @relation(fields: [roleId], references: [id])
 }
 
-model price {
-  id         Int     @id @default(autoincrement())
-  provinsi   String
-  kota       String
-  hargaTarif Decimal @db.Decimal(10, 2)
-  orders     order[]
+model harga {
+  id         Int       @id @default(autoincrement())
+  provinsi   String    @db.VarChar(100)
+  kota       String    @db.VarChar(100)
+  hargaTarif Decimal   @db.Decimal(10, 2)
+  pesanan    pesanan[]
 }
 
-model order {
-  id          Int      @id @default(autoincrement())
-  userId      Int
-  priceId     Int?
-  deliveryId  Int?
-  noSpb       String
-  koli        Int
-  berat       Int
-  alamaTujuan String
-  hargaCustom Decimal? @db.Decimal(10, 2)
-  ket         String?
-  prioritas   String
-  status      String?  @default("Belum Lunas")
-  total       Decimal  @db.Decimal(10, 2)
-  image       String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  delivery    deliver? @relation(fields: [deliveryId], references: [id])
-  price       price?   @relation(fields: [priceId], references: [id])
-  user        user     @relation(fields: [userId], references: [id])
+model truck {
+  id         Int          @id @default(autoincrement())
+  kode       String       @db.VarChar(20)
+  kapasitas  Decimal      @db.Decimal(10, 2)
+  bb         Decimal      @db.Decimal(10, 2)
+  status     String       @db.VarChar(100)
+  pengiriman pengiriman[]
 }
 
-model deliver {
-  id             Int              @id @default(autoincrement())
-  name           String?
-  bb             Decimal          @db.Decimal(10, 2)
-  tanggalJalan   DateTime
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-  deliverStatus  deliverStatus[]
-  deliveryDriver deliveryDriver[]
-  order          order[]
+model pesanan {
+  id           Int         @id @default(autoincrement())
+  userId       Int
+  hargaId      Int?
+  pengirimanId Int?
+  noSpb        String
+  koli         Int
+  berat        Int
+  hargaCustom  Decimal?    @db.Decimal(10, 2)
+  tujuan       String      @db.VarChar(255)
+  ket          String?     @db.VarChar(255)
+  prioritas    String      @db.VarChar(50)
+  statusPay    String?     @default("Belum Lunas")
+  total        Decimal     @db.Decimal(10, 2)
+  tanggalMasuk DateTime    @default(now())
+  image        String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  pengiriman   pengiriman? @relation(fields: [pengirimanId], references: [id])
+  harga        harga?      @relation(fields: [hargaId], references: [id])
+  user         user        @relation(fields: [userId], references: [id])
 }
 
-model deliveryDriver {
+model sopir {
   id        Int      @id @default(autoincrement())
-  deliverId Int
   userId    Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  deliver   deliver  @relation(fields: [deliverId], references: [id])
+  pengiriman pengiriman[]
   user      user     @relation(fields: [userId], references: [id])
 }
 
-model deliverStatus {
-  id               Int      @id @default(autoincrement())
-  statusPengiriman String
-  deliverId        Int
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  deliver          deliver  @relation(fields: [deliverId], references: [id])
+model pengiriman {
+  id               Int       @id @default(autoincrement())
+  sopirId          Int
+  truckId          Int
+  name             String?
+  totalHarga       Decimal   @db.Decimal(10, 2)
+  totalBerat       Decimal   @db.Decimal(10, 2)
+  tanggalJalan     DateTime
+  statusPengiriman String    @db.VarChar(50)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  pesanan          pesanan[]
+  sopir            sopir     @relation(fields: [sopirId], references: [id])
+  truck            truck     @relation(fields: [truckId], references: [id])
 }

@@ -18,7 +18,7 @@ export const getUser = async (
             OR: [
                 { name: { contains: search, mode: "insensitive" as const } },
                 { email: { contains: search, mode: "insensitive" as const } },
-                { noTelp: { contains: search, mode: "insensitive" as const } },
+                { noHp: { contains: search, mode: "insensitive" as const } },
                 { alamat: { contains: search, mode: "insensitive" as const } },
             ],
         }
@@ -42,7 +42,7 @@ export const countUser = async (search: string) => {
             OR: [
                 { name: { contains: search, mode: "insensitive" } },
                 { email: { contains: search, mode: "insensitive" } },
-                { noTelp: { contains: search, mode: "insensitive" } },
+                { noHp: { contains: search, mode: "insensitive" } },
             ],
         }
         : {};
@@ -75,7 +75,7 @@ export const registerUser = async (item: userData) => {
             password: hashPassword,
             name: item.name,
             alamat: item.alamat ?? null,
-            noTelp: item.noTelp ?? null,
+            noHp: item.noHp ?? null,
             roleId: item.roleId
         }
     });
@@ -96,7 +96,7 @@ export const updateUser = async (id: number, item: userData) => {
             name: item.name,
             email: item.email,
             alamat: item.alamat,
-            noTelp: item.noTelp,
+            noHp: item.noHp,
             roleId: item.roleId,
             image: item.image
         }

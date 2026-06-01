@@ -1,12 +1,12 @@
-import { priceData } from '../types/price';
+import { hargaData } from '../types/harga';
 import prisma from '../db/prisma';
 
-export const AllPrice = async () => {
-    const price = await prisma.price.findMany();
-    return price
+export const AllHarga = async () => {
+    const harga = await prisma.harga.findMany();
+    return harga
 }
 
-export const getPrice = async (skip: number, take: number, search: string) => {
+export const getHarga = async (skip: number, take: number, search: string) => {
     const isNumber = !isNaN(Number(search));
 
     const where = search ? {
@@ -19,12 +19,12 @@ export const getPrice = async (skip: number, take: number, search: string) => {
         ]
     } : {};
 
-    return await prisma.price.findMany({
+    return await prisma.harga.findMany({
         skip, take, where,
     });
 }
 
-export const countPrice = async (search: string) => {
+export const countHarga = async (search: string) => {
     const isNumber = !isNaN(Number(search));
     const where = search ? {
         OR: [
@@ -35,28 +35,28 @@ export const countPrice = async (search: string) => {
                 : []),
         ]
     } : {};
-    return await prisma.price.count();
+    return await prisma.harga.count();
 }
 
-export const getPriceById = async (id: number) => {
-    return await prisma.price.findUnique({
+export const getHargaById = async (id: number) => {
+    return await prisma.harga.findUnique({
         where: { id }
     });
 };
 
-export const createPrice = async (item: priceData) => {
-    const price = await prisma.price.create({
+export const createHarga = async (item: hargaData) => {
+    const harga = await prisma.harga.create({
         data: {
             provinsi: item.provinsi,
             kota: item.kota,
             hargaTarif: item.hargaTarif,
         },
     });
-    return price;
+    return harga;
 }
 
-export const updatePrice = async (id: number, item: priceData) => {
-    const price = await prisma.price.update({
+export const updateHarga = async (id: number, item: hargaData) => {
+    const harga = await prisma.harga.update({
         where: { id: id },
         data: {
             provinsi: item.provinsi,
@@ -64,11 +64,11 @@ export const updatePrice = async (id: number, item: priceData) => {
             hargaTarif: item.hargaTarif,
         },
     });
-    return price
+    return harga
 }
 
-export const deletePrice = async (id: number) => {
-    await prisma.price.delete({
+export const deleteHarga = async (id: number) => {
+    await prisma.harga.delete({
         where: { id }
     });
 }
