@@ -1,6 +1,6 @@
 export interface pengirimanData {
     id: number;
-    sopirId: number;
+    sopirIds: number[];
     truckId: number;
     name: string;
     totalBerat: number;

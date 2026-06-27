@@ -39,7 +39,10 @@ export const getTrucksByIdController = async (req: Request, res: Response) => {
 export const postTruckController = async (req: Request, res: Response) => {
     try {
         const truck = await postTruck(req.body);
-        res.status(201).json(truck);
+        res.status(201).json({
+            message: "Truck berhasil dibuat",
+            data: truck
+        });
     } catch (error: any) {
         res.status(400).json({ error: error.message });
     }

@@ -23,7 +23,8 @@ model user {
   image     String?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  sopir     sopir[]
+  // sopir     sopir[]
+  pengiriman pengiriman[]
   pesanan   pesanan[]
   role      role      @relation(fields: [roleId], references: [id])
 }
@@ -68,18 +69,18 @@ model pesanan {
   user         user        @relation(fields: [userId], references: [id])
 }
 
-model sopir {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  pengiriman pengiriman[]
-  user      user     @relation(fields: [userId], references: [id])
-}
+// model sopir {
+//   id        Int      @id @default(autoincrement())
+//   userId    Int
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+//   pengiriman pengiriman[]
+//   user      user     @relation(fields: [userId], references: [id])
+// }
 
 model pengiriman {
   id               Int       @id @default(autoincrement())
-  sopirId          Int
+  // sopirId          Int?
   truckId          Int
   name             String?
   totalHarga       Decimal   @db.Decimal(10, 2)
@@ -89,6 +90,6 @@ model pengiriman {
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
   pesanan          pesanan[]
-  sopir            sopir     @relation(fields: [sopirId], references: [id])
+  sopir            user[]
   truck            truck     @relation(fields: [truckId], references: [id])
 }

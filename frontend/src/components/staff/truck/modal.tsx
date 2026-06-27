@@ -11,7 +11,7 @@ type Props = {
     mode: "create" | "edit";
 };
 
-export default function PriceModal({
+export default function TruckModal({
     isOpen,
     onClose,
     form,
@@ -28,35 +28,35 @@ export default function PriceModal({
             <div className="flex flex-col px-2 overflow-y-auto custom-scrollbar">
                 <div>
                     <h5 className="mb-2 font-semibold text-gray-800 modal-title text-theme-xl dark:text-white/90 lg:text-2xl">
-                        {mode === "edit" ? "Edit Harga Tarif Wilayah" : "Add Harga Tarif Wilayah"}
+                        {mode === "edit" ? "Edit Pemasukkan Truck" : "Add Pemasukkan Truck"}
                     </h5>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Pembuatan Price / harga Wilayah. pastikan memberikan Harga yang benar.
+                        Pembuatan Truck, untuk memasukkan data truck baru. pastikan memberikan Harga yang benar.
                     </p>
                 </div>
                 <div className="space-y-4 mt-6">
                     <div>
-                        <Label>Provinsi</Label>
-                        <Input name="provinsi"
-                            value={form.provinsi}
+                        <Label>Kode</Label>
+                        <Input name="kode"
+                            value={form.kode}
                             onChange={handleChange}
                             type="text"
                         />
                     </div>
                     <div>
-                        <Label>Kota</Label>
-                        <Input name="kota"
-                            value={form.kota}
+                        <Label>Kapasitas</Label>
+                        <Input name="kapasitas"
+                            value={form.kapasitas}
                             onChange={handleChange}
                             type="text"
                         />
                     </div>
                     <div>
-                        <Label>Harga Tarif Wilayah</Label>
-                        <Input name="hargaTarif"
-                            value={form.hargaTarif}
+                        <Label>Biaya Berangkat</Label>
+                        <Input name="bb"
+                            value={form.bb}
                             onChange={handleChange}
-                            placeholder="ex: 2000"
+                            placeholder="ex: 2000000"
                             type="number"
                         />
                     </div>
@@ -79,5 +79,5 @@ export default function PriceModal({
                 </div>
             </div>
         </Modal>
-    );
+    )
 }

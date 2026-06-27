@@ -1,42 +1,28 @@
 import Pagination from "@/components/tables/Pagination";
 import Table from "@/components/tables/Table";
-import Alert from "@/components/ui/alert/Alert";
 import Button from "@/components/ui/button/Button";
 import { useModal } from "@/hooks/useModal";
 import { apiRequest } from "@/service/api.service";
-import { Column, orderData, priceData, userData } from "@/types";
+import { Column, hargaData } from "@/types";
 import { Pencil, PlusCircleIcon, Search, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import OrderModal from "./Modal";
-import Badge from "@/components/ui/badge/Badge";
+import Alert from "@/components/ui/alert/Alert";
+import HargaModal from "./Modal";
 
-const initialForm = {
-    id: 0,
-    userId: 0,
-    priceId: "",
-    deliveryId: 0,
-    noSpb: "",
-    koli: "",
-    berat: "",
-    alamaTujuan: "",
-    ket: "",
-    prioritas: "",
-    status: "",
-    total: "",
-    image: "",
-};
-
-export default function Order() {
-    const [order, setOrder] = useState<orderData[]>([]);
-    const [price, setPrice] = useState<priceData[]>([]);
-    const [user, setUser] = useState<userData[]>([]);
+export default function Hargas() {
+    const [harga, setharga] = useState<hargaData[]>([]);
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState("");
     const { isOpen, openModal, closeModal } = useModal();
     const [mode, setMode] = useState<"create" | "edit">("create");
 
-    const [form, setForm] = useState(initialForm);
+    const [form, setForm] = useState({
+        id: 0,
+        provinsi: "",
+        kota: "",
+        hargaTarif: ""
+    });
 
     const [meta, setMeta] = useState({
         total: 0,
@@ -49,57 +35,31 @@ export default function Order() {
         message: string;
     } | null>(null);
 
-    const getOrder = async (pageNumber = 1) => {
+    const getharga = async (pageNumber = 1) => {
         try {
             setLoading(true);
             const res = await apiRequest({
-                endpoint: `/order?filterHarga=priceId&page=${pageNumber}&limit=10&search=${search}`
+                endpoint: `/harga?page=${pageNumber}&limit=10&search=${search}`
             });
 
-            console.log("Data Full Order:", res);
-            console.log("Array Order:", res.data);
-            setOrder(res.data.data);
+            console.log("Data Full harga:", res);
+            console.log("Array harga:", res.data);
+            setharga(res.data.data);
             setMeta(res.data.meta)
         } catch (error) {
-            console.error("gagal dapat data Order:", error);
+            console.error("gagal dapat data harga:", error);
         } finally {
             setLoading(false);
         }
     }
 
-    const getUsers = async () => {
-        try {
-            const res = await apiRequest({
-                endpoint: "/allusers"
-            });
-            console.log("Users:", res);
-            setUser(res.data);
-        } catch (error) {
-            console.error("Gagal ambil users:", error);
-        }
-    }
-
-    const getPrice = async () => {
-        try {
-            const res = await apiRequest({
-                endpoint: "/allprice"
-            });
-            console.log("Price:", res);
-            setPrice(res.data);
-        } catch (error) {
-            console.error("Gagal ambil Price:", error);
-        }
-    }
-
     useEffect(() => {
-        getOrder(page);
-        getUsers();
-        getPrice();
+        getharga(page);
     }, [page, search]);
 
     useEffect(() => {
         const delay = setTimeout(() => {
-            getOrder(1);
+            getharga(1);
         }, 500);
 
         return () => clearTimeout(delay);
@@ -115,31 +75,30 @@ export default function Order() {
     const handleCreate = async () => {
         try {
             await apiRequest({
-                endpoint: "/order",
+                endpoint: "/harga",
                 method: "POST",
                 data: {
                     ...form,
-                    userId: Number(form.userId),
-                    priceId: Number(form.priceId),
-                    deliveryId: form.deliveryId ? Number(form.deliveryId) : null,
-                    koli: Number(form.koli),
-                    berat: Number(form.berat),
-                    total: Number(form.total),
                 },
             });
 
             closeModal();
-            setForm(initialForm);
+            setForm({
+                id: 0,
+                provinsi: "",
+                kota: "",
+                hargaTarif: "",
+            });
 
             setAlert({
                 type: "success",
-                message: "order berhasil dibuat",
+                message: "harga berhasil dibuat",
             });
-            getOrder();
+            getharga();
         } catch (error) {
             setAlert({
                 type: "error",
-                message: "Gagal membuat order"
+                message: "Gagal membuat harga"
             });
             console.error("console.error", error);
         }
@@ -150,18 +109,9 @@ export default function Order() {
 
         setForm({
             id: row.id,
-            userId: row.userId,
-            priceId: row.priceId,
-            deliveryId: row.deliveryId,
-            noSpb: row.noSpb || "",
-            koli: row.koli || "",
-            berat: row.berat || "",
-            alamaTujuan: row.alamaTujuan || "",
-            ket: row.ket || "",
-            prioritas: row.prioritas || "",
-            status: row.status || "",
-            total: row.total || "",
-            image: row.image || "",
+            provinsi: row.provinsi || "",
+            kota: row.kota || "",
+            hargaTarif: row.hargaTarif || "",
         });
 
         openModal();
@@ -170,7 +120,7 @@ export default function Order() {
     const handleUpdate = async () => {
         try {
             await apiRequest({
-                endpoint: `/order/${form.id}`,
+                endpoint: `/harga/${form.id}`,
                 method: "PUT",
                 data: {
                     ...form,
@@ -179,15 +129,15 @@ export default function Order() {
 
             setAlert({
                 type: "success",
-                message: "Order berhasil diupdate",
+                message: "harga berhasil diupdate",
             });
 
             closeModal();
-            getOrder();
+            getharga();
         } catch (error) {
             setAlert({
                 type: "error",
-                message: "Gagal membuat update data Order"
+                message: "Gagal membuat update data harga"
             });
             console.error("console.error", error);
         }
@@ -207,19 +157,19 @@ export default function Order() {
 
         try {
             await apiRequest({
-                endpoint: `/order/${id}`,
+                endpoint: `/harga/${id}`,
                 method: "DELETE",
             });
 
             setAlert({
                 type: "success",
-                message: "Order berhasil dihapus",
+                message: "harga berhasil dihapus",
             });
-            getOrder();
+            getharga();
         } catch (error) {
             setAlert({
                 type: "error",
-                message: "Gagal menghapus Order",
+                message: "Gagal menghapus harga",
             });
             console.error("Gagal delete:", error);
         }
@@ -235,29 +185,11 @@ export default function Order() {
         }
     }, [alert]);
 
-    const columns: Column[] = [
-        { key: "noSpb", label: "No SPB" },
-        { key: "user.name", label: "Customer" },
-        { key: "koli", label: "Koli" },
-        { key: "berat", label: "Berat" },
-        { key: "alamaTujuan", label: "Alamat Tujuan" },
-        { key: "price.hargaTarif", label: "harga", type: "currency", },
-        {key: "total", label:"Total", type: "currency"},
-        {
-            key: "prioritas",
-            label: "Prioritas",
-            render: (row: any) => {
-                const v = row.prioritas?.trim().toLowerCase() || "";
 
-                if (v.includes("tinggi")) {
-                    return <Badge variant="light" color="error">Prioritas Tinggi</Badge>;
-                }
-                if (v.includes("sedang")) {
-                    return <Badge variant="light" color="warning">Prioritas Sedang</Badge>;
-                }
-                return <Badge variant="light" color="info">Prioritas Rendah</Badge>;
-            }
-        },
+    const columns: Column[] = [
+        { key: "provinsi", label: "Provinsi" },
+        { key: "kota", label: "Kota" },
+        { key: "hargaTarif", label: "Harga Wilayah", type: "currency", },
         {
             key: "action",
             label: "Action",
@@ -324,7 +256,12 @@ export default function Order() {
                         onClick={() => {
                             setMode("create");
 
-                            setForm(initialForm);
+                            setForm({
+                                id: 0,
+                                provinsi: "",
+                                kota: "",
+                                hargaTarif: "",
+                            });
 
                             openModal();
                         }}
@@ -339,7 +276,7 @@ export default function Order() {
                             loading ? (
                                 <p>Loading...</p>
                             ) : (
-                                <Table columns={columns} data={order} />
+                                <Table columns={columns} data={harga} />
                             )
                         }
                     </div>
@@ -353,17 +290,15 @@ export default function Order() {
                 </div>
             </div>
 
-            <OrderModal
+            <HargaModal
                 isOpen={isOpen}
                 onClose={closeModal}
                 form={form}
                 handleChange={handleChange}
                 handleSubmit={handleSubmit}
                 mode={mode}
-                users={user}
-                prices={price}
             />
         </>
     );
 
-} 
+}

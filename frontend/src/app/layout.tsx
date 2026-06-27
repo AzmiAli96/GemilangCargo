@@ -3,6 +3,13 @@ import './globals.css';
 import "flatpickr/dist/flatpickr.css";
 import { SidebarProvider } from '@/context/SidebarContext';
 import { ThemeProvider } from '@/context/ThemeContext';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+    title: "CV Gemilang Cargo",
+    description: "Next.js App",
+    icons: "/images/logo/logo.png"
+};
 
 const outfit = Outfit({
   subsets: ["latin"],

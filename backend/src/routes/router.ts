@@ -1,9 +1,9 @@
 import express from "express";
 import { deleteHargaController, getAllHargaController, getHargaController, postHargaController, putHargaController } from "../controller/hargaController";
 import { deleteUserController, getAllUsersController, getUsersByIdController, getUsersController, loginController, LogoutController, putUserController, registerController } from "../controller/userController";
-import { assignpesananToPengirimanController, deletepesananController, getpesananByIdController, getpesananController, importpesananController, postpesananController, putpesananController } from "../controller/pesananController";
+import { assignpesananToPengirimanController, deletepesananController, getAllPesananController, getpesananByIdController, getpesananController, importpesananController, postpesananController, putpesananController } from "../controller/pesananController";
 import { upload } from "../middleware/upload";
-import { deletepengirimanController, getpengirimanByIdController, getpengirimanController, getpengirimanpaginateController, postpengirimanController, putpengirimanController } from "../controller/pengirimanController";
+import { deletepengirimanController, generatePengirimanController, getpengirimanByIdController, getpengirimanController, getpengirimanpaginateController, postpengirimanController, putpengirimanController } from "../controller/pengirimanController";
 import { deleteSopirController, getDeliveryPaginateController, getSopirController, postSopirController, putSopirController } from "../controller/sopirController";
 import { deleteStatusController, getStatusByIdController, getStatusController, getStatusPaginateController, postStatusController, putStatusController } from "../controller/deliverStatusController";
 import { getRoleController } from "../controller/RoleController";
@@ -31,6 +31,7 @@ router.put("/harga/:id", putHargaController);
 router.delete("/harga/:id", deleteHargaController);
 
 // ================= pesanan =================
+router.get("/allPesanan", getAllPesananController);
 router.get("/pesanan", getpesananController);
 router.get("/pesanan/:id", getpesananByIdController);
 router.post("/pesanan", postpesananController);
@@ -40,11 +41,11 @@ router.delete("/pesanan/:id", deletepesananController);
 router.post("/pesanan/import", upload.single("file"), importpesananController);
 
 // ================= DELIVER Sopir =================
-router.get("/sopir", getSopirController);
-router.get("/sopirpagination", getDeliveryPaginateController);
-router.post("/sopir", postSopirController);
-router.put("/sopir/:id", putSopirController);
-router.delete("/sopir/:id", deleteSopirController);
+// router.get("/sopir", getSopirController);
+// router.get("/sopirpagination", getDeliveryPaginateController);
+// router.post("/sopir", postSopirController);
+// router.put("/sopir/:id", putSopirController);
+// router.delete("/sopir/:id", deleteSopirController);
 
 // ================= DELIVER Truck =================
 router.get("/truck", getTruckController);
@@ -68,6 +69,7 @@ router.get("/pengirimanpaginate", getpengirimanpaginateController);
 router.post("/pengiriman", postpengirimanController);
 router.put("/pengiriman/:id", putpengirimanController);
 router.delete("/pengiriman/:id", deletepengirimanController);
+router.post("/pengiriman/generate", generatePengirimanController);
 // router.get("/pengiriman-summary", getpengirimanSummaryController);
 
 

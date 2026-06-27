@@ -1,4 +1,3 @@
-import DatePicker from "@/components/form/date-picker";
 import Input from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
 import { Modal } from "@/components/ui/modal";
@@ -12,7 +11,7 @@ type Props = {
     mode: "create" | "edit";
 };
 
-export default function DeliveryModal({
+export default function HargaModal({
     isOpen,
     onClose,
     form,
@@ -29,47 +28,39 @@ export default function DeliveryModal({
             <div className="flex flex-col px-2 overflow-y-auto custom-scrollbar">
                 <div>
                     <h5 className="mb-2 font-semibold text-gray-800 modal-title text-theme-xl dark:text-white/90 lg:text-2xl">
-                        {mode === "edit" ? "Edit Pengiriman Barang" : "Add Pengiriman Barang"}
+                        {mode === "edit" ? "Edit Harga Tarif Wilayah" : "Add Harga Tarif Wilayah"}
                     </h5>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Pembuatan Pengiriman Barang. pastikan memberikan informasi yang benar.
+                        Pembuatan Harga / harga Wilayah. pastikan memberikan Harga yang benar.
                     </p>
                 </div>
                 <div className="space-y-4 mt-6">
                     <div>
-                        <Label>Nama Pengiriman</Label>
-                        <Input name="name"
-                            value={form.name}
+                        <Label>Provinsi</Label>
+                        <Input name="provinsi"
+                            value={form.provinsi}
                             onChange={handleChange}
-                            placeholder="ex: Pengiriman ke Jakarta"
                             type="text"
                         />
                     </div>
                     <div>
-                        <Label>BB</Label>
-                        <Input name="bb"
-                            value={form.bb}
+                        <Label>Kota</Label>
+                        <Input name="kota"
+                            value={form.kota}
                             onChange={handleChange}
-                            placeholder="ex: 1000000"
-                            type="number"
+                            type="text"
                         />
                     </div>
                     <div>
-                        <DatePicker
-                            id="date-picker"
-                            label="Tanggal Keberangkatan"
-                            placeholder="Select a date"
-                            value={form.tanggalJalan}
-                            onChange={(dates: any, dateStr: string) => {
-                                handleChange({
-                                    target: {
-                                        name: "tanggalJalan",
-                                        value: dateStr, // format: YYYY-MM-DD
-                                    },
-                                });
-                            }}
+                        <Label>Harga Tarif Wilayah</Label>
+                        <Input name="hargaTarif"
+                            value={form.hargaTarif}
+                            onChange={handleChange}
+                            placeholder="ex: 2000"
+                            type="number"
                         />
                     </div>
+
                     <div className="flex items-center gap-3 mt-6 modal-footer sm:justify-end">
                         <button
                             onClick={onClose}

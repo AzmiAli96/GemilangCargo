@@ -1,6 +1,15 @@
 import { Request, Response } from "express";
-import { deletepesananId, getAllpesanan, getpesananById, importpesananFromExcel, postpesanan, putAssignpesananTopengiriman, putpesanan } from "../service/pesananService";
+import { deletepesananId, getAllpesanan, getPesananAll, getpesananById, importpesananFromExcel, postpesanan, putAssignpesananTopengiriman, putpesanan } from "../service/pesananService";
 import { FilterHarga } from "../types/pesanan";
+
+export const getAllPesananController = async (req: Request, res: Response) => {
+  try {
+    const pesanan = await getPesananAll();
+    res.status(200).json(pesanan);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+}
 
 export const getpesananController = async (req: Request, res: Response) => {
   try {

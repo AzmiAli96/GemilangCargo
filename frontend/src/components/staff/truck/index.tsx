@@ -1,27 +1,28 @@
+"use client"
 import Pagination from "@/components/tables/Pagination";
 import Table from "@/components/tables/Table";
+import Alert from "@/components/ui/alert/Alert";
 import Button from "@/components/ui/button/Button";
 import { useModal } from "@/hooks/useModal";
 import { apiRequest } from "@/service/api.service";
-import { Column, priceData } from "@/types";
+import { Column, truckData } from "@/types";
 import { Pencil, PlusCircleIcon, Search, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import PriceModal from "./Modal";
-import Alert from "@/components/ui/alert/Alert";
+import TruckModal from "./modal";
 
-export default function Price() {
-    const [price, setPrice] = useState<priceData[]>([]);
+export default function Truck() {
+    const [truck, setTruck] = useState<truckData[]>([]);
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState("");
     const { isOpen, openModal, closeModal } = useModal();
     const [mode, setMode] = useState<"create" | "edit">("create");
-
     const [form, setForm] = useState({
         id: 0,
-        provinsi: "",
-        kota: "",
-        hargaTarif: ""
+        kode: "",
+        kapasitas: 0,
+        bb: 0,
+        status: ""
     });
 
     const [meta, setMeta] = useState({
@@ -35,31 +36,32 @@ export default function Price() {
         message: string;
     } | null>(null);
 
-    const getPrice = async (pageNumber = 1) => {
+    const getTruck = async (pageNumber = 1) => {
         try {
             setLoading(true);
             const res = await apiRequest({
-                endpoint: `/price?page=${pageNumber}&limit=10&search=${search}`
+                endpoint: `/truckpagination?page=${pageNumber}&limit=10&search=${search}`,
+                method: "GET",
             });
-
-            console.log("Data Full Price:", res);
-            console.log("Array Price:", res.data);
-            setPrice(res.data.data);
-            setMeta(res.data.meta)
+            setTruck(res.data.data);
+            setMeta(res.meta);
         } catch (error) {
-            console.error("gagal dapat data price:", error);
+            setAlert({
+                type: "error",
+                message: "Terjadi Kesalahan saat mengambil data truck"
+            });
         } finally {
             setLoading(false);
         }
     }
 
     useEffect(() => {
-        getPrice(page);
+        getTruck(page);
     }, [page, search]);
 
     useEffect(() => {
         const delay = setTimeout(() => {
-            getPrice(1);
+            getTruck(1);
         }, 500);
 
         return () => clearTimeout(delay);
@@ -75,30 +77,27 @@ export default function Price() {
     const handleCreate = async () => {
         try {
             await apiRequest({
-                endpoint: "/price",
+                endpoint: "/truck",
                 method: "POST",
-                data: {
-                    ...form,
-                },
+                data: form,
             });
-
             closeModal();
             setForm({
                 id: 0,
-                provinsi: "",
-                kota: "",
-                hargaTarif: "",
+                kode: "",
+                kapasitas: 0,
+                bb: 0,
+                status: ""
             });
-
             setAlert({
                 type: "success",
-                message: "Price berhasil dibuat",
+                message: "Truck berhasil ditambahkan"
             });
-            getPrice();
+            getTruck();
         } catch (error) {
             setAlert({
                 type: "error",
-                message: "Gagal membuat price"
+                message: "Terjadi Kesalahan saat menambahkan truck"
             });
             console.error("console.error", error);
         }
@@ -109,9 +108,10 @@ export default function Price() {
 
         setForm({
             id: row.id,
-            provinsi: row.provinsi || "",
-            kota: row.kota || "",
-            hargaTarif: row.hargaTarif || "",
+            kode: row.kode,
+            kapasitas: row.kapasitas,
+            bb: row.bb,
+            status: row.status
         });
 
         openModal();
@@ -120,7 +120,7 @@ export default function Price() {
     const handleUpdate = async () => {
         try {
             await apiRequest({
-                endpoint: `/price/${form.id}`,
+                endpoint: `/truck/${form.id}`,
                 method: "PUT",
                 data: {
                     ...form,
@@ -129,20 +129,19 @@ export default function Price() {
 
             setAlert({
                 type: "success",
-                message: "Price berhasil diupdate",
+                message: "Truck berhasil diupdate",
             });
 
             closeModal();
-            getPrice();
+            getTruck();
         } catch (error) {
             setAlert({
                 type: "error",
-                message: "Gagal membuat update data price"
+                message: "Gagal membuat update data Truck"
             });
             console.error("console.error", error);
         }
     }
-
     const handleSubmit = async () => {
         if (mode === "create") {
             await handleCreate();
@@ -157,19 +156,19 @@ export default function Price() {
 
         try {
             await apiRequest({
-                endpoint: `/price/${id}`,
+                endpoint: `/truck/${id}`,
                 method: "DELETE",
             });
 
             setAlert({
                 type: "success",
-                message: "price berhasil dihapus",
+                message: "Truck berhasil dihapus",
             });
-            getPrice();
+            getTruck();
         } catch (error) {
             setAlert({
                 type: "error",
-                message: "Gagal menghapus price",
+                message: "Gagal menghapus Truck",
             });
             console.error("Gagal delete:", error);
         }
@@ -185,11 +184,11 @@ export default function Price() {
         }
     }, [alert]);
 
-
     const columns: Column[] = [
-        { key: "provinsi", label: "Provinsi" },
-        { key: "kota", label: "Kota" },
-        { key: "hargaTarif", label: "Harga Wilayah", type: "currency", },
+        { key: "kode", label: "Kode / Plat" },
+        { key: "kapasitas", label: "Kapasitas Truck", type: "weight" },
+        { key: "bb", label: "Biaya Berangkat / BB", type: "currency" },
+        { key: "status", label: "Status Truck" },
         {
             key: "action",
             label: "Action",
@@ -258,15 +257,16 @@ export default function Price() {
 
                             setForm({
                                 id: 0,
-                                provinsi: "",
-                                kota: "",
-                                hargaTarif: "",
+                                kode: "",
+                                kapasitas: 0,
+                                bb: 0,
+                                status: ""
                             });
 
                             openModal();
                         }}
                     >
-                        Create
+                        Truck Baru
                     </Button>
 
                 </div>
@@ -276,7 +276,7 @@ export default function Price() {
                             loading ? (
                                 <p>Loading...</p>
                             ) : (
-                                <Table columns={columns} data={price} />
+                                <Table columns={columns} data={truck} />
                             )
                         }
                     </div>
@@ -290,15 +290,14 @@ export default function Price() {
                 </div>
             </div>
 
-            <PriceModal
-                isOpen={isOpen}
-                onClose={closeModal}
-                form={form}
-                handleChange={handleChange}
-                handleSubmit={handleSubmit}
-                mode={mode}
-            />
+            <TruckModal
+                    isOpen={isOpen}
+                    onClose={closeModal}
+                    form={form}
+                    handleChange={handleChange}
+                    handleSubmit={handleSubmit}
+                    mode={mode}
+                />
         </>
     );
-
 }

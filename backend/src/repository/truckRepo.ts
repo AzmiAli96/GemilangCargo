@@ -33,7 +33,7 @@ export const createTruck = async (item: truckData) => {
             kode: item.kode,
             kapasitas: item.kapasitas,
             bb: item.bb,
-            status: item.status,
+            status: "BARANG MASUK",
         }
     })
     return truck;

@@ -1,20 +1,25 @@
 import { FilterHarga, pesananData } from "../types/pesanan";
-import { assignpesananToPengiriman, countpesanan, createpesanan, deletepesanan, getpesanan, pesananById, updatepesanan } from "../repository/pesananRepo";
+import { allPesanan, assignpesananToPengiriman, countpesanan, createpesanan, deletepesanan, getpesanan, pesananById, updatepesanan } from "../repository/pesananRepo";
 import { hitungPrioritas } from "../utils/kmeans";
 import { readExcel } from "../utils/excel";
 import { prisma } from "../db/prisma";
 import { getHargaById } from "../repository/hargaRepo";
 import { getPagination, getPagingData } from "../utils/pagination";
 
-export const getAllpesanan = async ({ 
-    page, 
-    limit, 
-    search, 
+export const getPesananAll = async () => {
+    const pesanan = await allPesanan();
+    return pesanan;
+}
+
+export const getAllpesanan = async ({
+    page,
+    limit,
+    search,
     filterHarga = "semua",
-    pengirimanId, }: { 
-        page: number, 
-        limit: number, 
-        search: string, 
+    pengirimanId, }: {
+        page: number,
+        limit: number,
+        search: string,
         filterHarga: FilterHarga,
         pengirimanId?: any,
     }) => {
@@ -55,7 +60,6 @@ export const postpesanan = async (item: pesananData) => {
         }
 
         total = item.berat * Number(harga.hargaTarif);
-
     }
 
     const pesanan = await createpesanan({
@@ -67,10 +71,94 @@ export const postpesanan = async (item: pesananData) => {
     return pesanan;
 }
 
-export const putpesanan = async (id: number, item: pesananData) => {
-    const pesanan = await updatepesanan(id, item);
+// export const putpesanan = async (id: number, item: pesananData) => {
+//     const pesanan = await updatepesanan(id, item);
+//     return pesanan;
+// }
+export const putpesanan = async (id: number, item: Partial<pesananData>) => {
+    const oldPesanan = await pesananById(id);
+
+    if (!oldPesanan) {
+        throw new Error("Pesanan tidak ditemukan");
+    }
+
+    const needRecalculate =
+        item.berat !== undefined ||
+        item.koli !== undefined ||
+        item.hargaCustom !== undefined ||
+        item.hargaId !== undefined;
+
+    const berat = Number(item.berat ?? oldPesanan.berat);
+    const koli = Number(item.koli ?? oldPesanan.koli);
+    const prioritas = hitungPrioritas({
+        berat,
+        koli,
+    });
+
+    let total = Number(oldPesanan.total);
+
+    if (needRecalculate) {
+        const hargaCustom =
+            item.hargaCustom != null
+                ? Number(item.hargaCustom)
+                : oldPesanan.hargaCustom != null
+                    ? Number(oldPesanan.hargaCustom)
+                    : null;
+
+        const hargaId =
+            item.hargaId != null
+                ? Number(item.hargaId)
+                : oldPesanan.hargaId != null
+                    ? Number(oldPesanan.hargaId)
+                    : null;
+
+        if (hargaCustom != null && hargaCustom > 0) {
+            total = berat * hargaCustom;
+        } else {
+            if (!hargaId) {
+                throw new Error("harga ID wajib diisi");
+            }
+
+            const harga = await getHargaById(hargaId);
+
+            if (!harga) {
+                throw new Error("harga tidak ditemukan");
+            }
+
+            total = berat * Number(harga.hargaTarif);
+        }
+    }
+
+    const hargaCustomFinal =
+        item.hargaCustom !== undefined
+            ? (item.hargaCustom != null ? Number(item.hargaCustom) : null)
+            : oldPesanan.hargaCustom != null
+                ? Number(oldPesanan.hargaCustom)
+                : null;
+
+    const hargaIdFinal =
+        item.hargaId !== undefined
+            ? (item.hargaId != null ? Number(item.hargaId) : null)
+            : oldPesanan.hargaId != null
+                ? Number(oldPesanan.hargaId)
+                : null;
+ 
+    const pesanan = await updatepesanan(id, {
+        ...item,
+        ...(item.userId !== undefined && { userId: Number(item.userId) }),
+        berat,
+        koli,
+        hargaCustom: hargaCustomFinal,
+        hargaId: hargaIdFinal,
+        prioritas,
+        total,
+        statusPay:
+            item.statusPay ??
+            oldPesanan.statusPay ??
+            "Belum Lunas",
+    });
     return pesanan;
-}
+};
 
 export const deletepesananId = async (id: number) => {
     const pesanan = await deletepesanan(id);

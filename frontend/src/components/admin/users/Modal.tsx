@@ -51,15 +51,15 @@ export default function UserModal({
             <div className="flex flex-col px-2 overflow-y-auto custom-scrollbar">
                 <div>
                     <h5 className="mb-2 font-semibold text-gray-800 modal-title text-theme-xl dark:text-white/90 lg:text-2xl">
-                        {mode === "edit" ? "Edit User" : "Add User"}
+                        {mode === "edit" ? "Perubahan data User" : "Pembuatan Pelanggan / User"}
                     </h5>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Pembuatan customer dan driver baru. pastikan memberikan informasi yang benar.
+                        Pembuatan Pelanggan / sopir baru. pastikan memberikan informasi yang benar.
                     </p>
                 </div>
                 <div className="space-y-4 mt-6">
                     <div>
-                        <Label>Name</Label>
+                        <Label>Name *</Label>
                         <Input name="name"
                             value={form.name}
                             onChange={handleChange}
@@ -108,8 +108,8 @@ export default function UserModal({
                     </div>
                     <div>
                         <Label>No Telepon</Label>
-                        <Input name="noTelp"
-                            value={form.noTelp}
+                        <Input name="noHp"
+                            value={form.noHp}
                             onChange={handleChange}
                             placeholder="08xx-xxxx-xxxx"
                             type="text"

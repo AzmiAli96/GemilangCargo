@@ -7,7 +7,7 @@ export type Column = {
   key: string;
   label: React.ReactNode;
   render?: (row: any) => React.ReactNode;
-  type?: "text" | "currency" | "number" | "date";
+  type?: "text" | "currency" | "number" | "date" | "weight";
 };
 
 export interface userData {
@@ -21,38 +21,51 @@ export interface userData {
     image: string;
 }
 
-export interface priceData {
+export interface hargaData {
     id: number;
     provinsi: string;
     kota: string;
     harga: number;
 }
 
-export interface orderData {
+export interface truckData {
+    id: number;
+    kode: string;
+    kapasitas: number;
+    bb: number;
+    status: string;
+}
+
+export interface pesananData {
     id: number;
     userId: number;
-    priceId: number;
-    deliveryId: number;
+    hargaId: number;
+    pengirimanId: number;
     noSpb: string;
     koli: number;
     berat: number;
-    alamaTujuan: string;
+    tujuan: string;
     hargaCustom: number;
     ket: string;
     prioritas: string;
     total: number;
-    status: string;
+    statusPay: string;
     image: string;
 }
 
-export interface deliverData {
+export interface pengirimanData {
     id: number;
+    sopirIds: number[];
+    truckId: number;
     name: string;
-    bb: number;
+    totalHarga: number;
+    totalBerat: number;
     tanggalJalan: Date;
+    statusPengiriman: string;
+    truck?: truckData;
 }
 
-export interface driverData {
+export interface sopirData {
     id: number;
     deliverId: number;
     userId: number;

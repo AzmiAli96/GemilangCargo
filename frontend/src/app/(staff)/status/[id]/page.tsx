@@ -1,5 +1,5 @@
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
-import DeliveryOrder from "@/components/staff/delivery/order";
+import DeliveryOrder from "@/components/staff/pengiriman/pesanan";
 import StatusOrder from "@/components/staff/status/order";
 import { Metadata } from "next";
 

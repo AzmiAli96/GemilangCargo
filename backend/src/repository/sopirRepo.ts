@@ -16,7 +16,7 @@ export const getSopirPaginate = async (skip: number, take: number, search: strin
     return await prisma.sopir.findMany({
         skip, take, where, include: {
             user: true,
-            deliver: true,
+            pengiriman: true,
         }
     });
 }

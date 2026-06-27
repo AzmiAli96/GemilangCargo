@@ -9,14 +9,28 @@ import DemographicCard from "@/components/ecommerce/DemographicCard";
 
 export const metadata: Metadata = {
   title:
-    "Next.js E-commerce Dashboard | TailAdmin - Next.js Dashboard Template",
-  description: "This is Next.js Home for TailAdmin Dashboard Template",
+    "Dashboard Gemilang Cargo",
+  description: " ",
 };
 
 export default function Ecommerce() {
   return (
     <div className="grid grid-cols-12 gap-4 md:gap-6">
-      <div className="col-span-12 space-y-6 xl:col-span-7">
+      {/* Atas */}
+      <div className="col-span-12">
+        <EcommerceMetrics />
+      </div>
+
+      {/* Bawah kiri */}
+      <div className="col-span-12 xl:col-span-7">
+        <MonthlySalesChart />
+      </div>
+
+      {/* Bawah kanan */}
+      <div className="col-span-12 xl:col-span-5">
+        <MonthlyTarget />
+      </div>
+      {/* <div className="col-span-12 space-y-6 xl:col-span-7">
         <EcommerceMetrics />
 
         <MonthlySalesChart />
@@ -24,19 +38,19 @@ export default function Ecommerce() {
 
       <div className="col-span-12 xl:col-span-5">
         <MonthlyTarget />
-      </div>
+      </div> */}
 
-      <div className="col-span-12">
+      {/* <div className="col-span-12">
         <StatisticsChart />
-      </div>
+      </div> */}
 
-      <div className="col-span-12 xl:col-span-5">
+      {/* <div className="col-span-12 xl:col-span-5">
         <DemographicCard />
-      </div>
+      </div> */}
 
-      <div className="col-span-12 xl:col-span-7">
+      {/* <div className="col-span-12 xl:col-span-7">
         <RecentOrders />
-      </div>
+      </div> */}
     </div>
   );
 }

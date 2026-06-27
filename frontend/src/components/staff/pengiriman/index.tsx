@@ -1,41 +1,39 @@
 "use client"
+
 import Pagination from "@/components/tables/Pagination";
 import Table from "@/components/tables/Table";
 import Alert from "@/components/ui/alert/Alert";
 import Button from "@/components/ui/button/Button";
 import { useModal } from "@/hooks/useModal";
 import { apiRequest } from "@/service/api.service";
-import { Column, orderData, priceData, userData } from "@/types";
-import { Pencil, PlusCircleIcon, Search, Trash2 } from "lucide-react";
+import { Column, pengirimanData, truckData, userData } from "@/types";
+import { Package, Pencil, PlusCircleIcon, Search, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import OrderCustomModal from "./Modal";
-import Badge from "@/components/ui/badge/Badge";
+import { useRouter } from "next/navigation";
+import PengirimanModal from "./Modal";
 
-const initialForm = {
-    id: 0,
-    userId: 0,
-    deliveryId: 0,
-    noSpb: "",
-    koli: "",
-    berat: "",
-    hargaCustom: "",
-    alamaTujuan: "",
-    ket: "",
-    prioritas: "",
-    total: "",
-    image: "",
-};
-
-export default function OrderCustom() {
-    const [order, setOrder] = useState<orderData[]>([]);
+export default function Pengiriman() {
+    const [pengiriman, setPengiriman] = useState<pengirimanData[]>([]);
+    const [truck, setTruck] = useState<truckData[]>([]);
     const [user, setUser] = useState<userData[]>([]);
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState("");
     const { isOpen, openModal, closeModal } = useModal();
-    const [mode, setMode] = useState<"create" | "edit">("create");
+    const [mode, setMode] = useState<"generate" | "edit">("generate");
+    const router = useRouter();
 
-    const [form, setForm] = useState(initialForm);
+    const [form, setForm] = useState({
+        id: 0,
+        sopir1: "",
+        sopir2: "",
+        truckId: "",
+        name: "",
+        totalHarga: "",
+        totalBerat: "",
+        tanggalJalan: "",
+        statusPengiriman: "",
+    });
 
     const [meta, setMeta] = useState({
         total: 0,
@@ -48,24 +46,23 @@ export default function OrderCustom() {
         message: string;
     } | null>(null);
 
-    const getOrder = async (pageNumber = 1) => {
+    const getPengiriman = async (pageNumber = 1) => {
         try {
             setLoading(true);
             const res = await apiRequest({
-                endpoint: `/order?filterHarga=hargaCustom&page=${pageNumber}&limit=10&search=${search}`
+                endpoint: `/pengirimanpaginate?page=${pageNumber}&limit=10&search=${search}`
             });
+            console.log("Data Full pengiriman:", res.data.data);
+            console.log("Array pengiriman:", res.data);
+            setPengiriman(res.data.data);
+            setMeta(res.meta);
 
-            console.log("Data Full Order:", res);
-            console.log("Array Order:", res.data);
-            setOrder(res.data.data);
-            setMeta(res.data.meta)
         } catch (error) {
-            console.error("gagal dapat data Order:", error);
+            console.error("gagal dapat data Pengiriman:", error);
         } finally {
             setLoading(false);
         }
     }
-
     const getUsers = async () => {
         try {
             const res = await apiRequest({
@@ -78,54 +75,77 @@ export default function OrderCustom() {
         }
     }
 
+    const getTrucks = async () => {
+        try {
+            const res = await apiRequest({
+                endpoint: "/truck"
+            });
+            // console.log("Data Full Truck:", res);
+            setTruck(res);
+        } catch (error) {
+            console.error("gagal dapat data Truck:", error);
+        }
+    }
+
     useEffect(() => {
-        getOrder(page);
+        getPengiriman(page);
         getUsers();
+        getTrucks();
+        // getDeliverySummary();
     }, [page, search]);
 
-    useEffect(() => {
-        const delay = setTimeout(() => {
-            getOrder(1);
-        }, 500);
-
-        return () => clearTimeout(delay);
-    }, [search]);
-
     const handleChange = (e: any) => {
+        const { name, value } = e.target;
+
         setForm({
             ...form,
-            [e.target.name]: e.target.value,
+            [name]: name === "bb" ? Number(value) : value,
         });
+
     };
 
-    const handleCreate = async () => {
+    const handleGenerate = async () => {
         try {
+            const payload = {
+                tanggalJalan: form.tanggalJalan
+                    ? new Date(form.tanggalJalan).toISOString()
+                    : null,
+            };
+
+            console.log("PAYLOAD:", payload);
+
+
             await apiRequest({
-                endpoint: "/order",
+                endpoint: "/pengiriman/generate",
                 method: "POST",
-                data: {
-                    ...form,
-                    userId: Number(form.userId),
-                    deliveryId: form.deliveryId ? Number(form.deliveryId) : null,
-                    koli: Number(form.koli),
-                    berat: Number(form.berat),
-                    hargaCustom: form.hargaCustom ? Number(form.hargaCustom) : null,
-                    total: Number(form.total),
-                },
+                data: payload,
             });
 
+            await getPengiriman();
+            await getTrucks();
+
             closeModal();
-            setForm(initialForm);
+            setForm({
+                id: 0,
+                truckId: "",
+                sopir1: "",
+                sopir2: "",
+                name: "",
+                totalHarga: "",
+                totalBerat: "",
+                tanggalJalan: "",
+                statusPengiriman: "",
+            });
 
             setAlert({
                 type: "success",
-                message: "order berhasil dibuat",
+                message: "Generate pengiriman berhasil",
             });
-            getOrder();
+            getPengiriman();
         } catch (error) {
             setAlert({
                 type: "error",
-                message: "Gagal membuat order"
+                message: "Generate pengiriman gagal",
             });
             console.error("console.error", error);
         }
@@ -136,17 +156,14 @@ export default function OrderCustom() {
 
         setForm({
             id: row.id,
-            userId: row.userId,
-            deliveryId: row.deliveryId,
-            noSpb: row.noSpb || "",
-            koli: row.koli || "",
-            berat: row.berat || "",
-            hargaCustom: row.hargaCustom || "",
-            alamaTujuan: row.alamaTujuan || "",
-            ket: row.ket || "",
-            prioritas: row.prioritas || "",
-            total: row.total || "",
-            image: row.image || "",
+            sopir1: row.sopir?.[0]?.id || "",
+            sopir2: row.sopir?.[1]?.id || "",
+            truckId: row.truckId || "",
+            name: row.name || "",
+            totalHarga: row.totalHarga || "",
+            totalBerat: row.totalBerat || "",
+            tanggalJalan: row.tanggalJalan || new Date(),
+            statusPengiriman: row.statusPengiriman || "",
         });
 
         openModal();
@@ -154,57 +171,70 @@ export default function OrderCustom() {
 
     const handleUpdate = async () => {
         try {
+            const payload = {
+                id: form.id,
+                truckId: Number(form.truckId),
+                name: form.name,
+                totalHarga: Number(form.totalHarga),
+                totalBerat: Number(form.totalBerat),
+                tanggalJalan: form.tanggalJalan,
+                statusPengiriman: form.statusPengiriman,
+                sopirIds: [
+                    form.sopir1 && Number(form.sopir1),
+                    form.sopir2 && Number(form.sopir2),
+                ].filter(Boolean),
+            };
+            console.log("payload", payload);
+
             await apiRequest({
-                endpoint: `/order/${form.id}`,
+                endpoint: `/pengiriman/${form.id}`,
                 method: "PUT",
-                data: {
-                    ...form,
-                }
+                data: payload
             });
 
             setAlert({
                 type: "success",
-                message: "Order berhasil diupdate",
+                message: "Pengiriman berhasil diupdate",
             });
 
             closeModal();
-            getOrder();
+            getPengiriman();
         } catch (error) {
             setAlert({
                 type: "error",
-                message: "Gagal membuat update data Order"
+                message: "Gagal membuat update data Pengiriman"
             });
             console.error("console.error", error);
         }
     }
 
     const handleSubmit = async () => {
-        if (mode === "create") {
-            await handleCreate();
-        } else {
+        if (mode === "edit") {
             await handleUpdate();
+        } else {
+            await handleGenerate();
         }
     }
 
     const handleDelete = async (id: number) => {
-        const confirmDelete = confirm("Yakin mau hapus user ini?");
+        const confirmDelete = confirm("Yakin mau hapus Data ini?");
         if (!confirmDelete) return;
 
         try {
             await apiRequest({
-                endpoint: `/order/${id}`,
+                endpoint: `/pengiriman/${id}`,
                 method: "DELETE",
             });
 
             setAlert({
                 type: "success",
-                message: "Order berhasil dihapus",
+                message: "Pengiriman berhasil dihapus",
             });
-            getOrder();
+            getPengiriman();
         } catch (error) {
             setAlert({
                 type: "error",
-                message: "Gagal menghapus Order",
+                message: "Gagal menghapus Pengiriman",
             });
             console.error("Gagal delete:", error);
         }
@@ -221,28 +251,25 @@ export default function OrderCustom() {
     }, [alert]);
 
     const columns: Column[] = [
-        { key: "noSpb", label: "No SPB" },
-        { key: "user.name", label: "Customer" },
-        { key: "koli", label: "Koli" },
-        { key: "berat", label: "Berat" },
-        { key: "alamaTujuan", label: "Alamat Tujuan" },
-        { key: "hargaCustom", label: "Harga", type: "currency", },
-        {key: "total", label:"Total", type: "currency"},
         {
-            key: "prioritas",
-            label: "Prioritas",
+            key: "sopir",
+            label: "Sopir",
             render: (row: any) => {
-                const v = row.prioritas?.trim().toLowerCase() || "";
-
-                if (v.includes("tinggi")) {
-                    return <Badge variant="light" color="error">Prioritas Tinggi</Badge>;
+                if (!row.sopir || row.sopir.length === 0) {
+                    return "-";
                 }
-                if (v.includes("sedang")) {
-                    return <Badge variant="light" color="warning">Prioritas Sedang</Badge>;
-                }
-                return <Badge variant="light" color="info">Prioritas Rendah</Badge>;
-            }
+                return row.sopir.map(
+                    (user: any) => user.name
+                ).join(" / ");
+            },
         },
+        { key: "truck.kode", label: "Truck" },
+        { key: "truck.kapasitas", label: "Kapasitas", type: "weight" },
+        { key: "totalBerat", label: "Total Berat", type: "weight" },
+        { key: "truck.bb", label: "Biaya Berangkat", type: "currency" },
+        { key: "totalHarga", label: "Total Harga", type: "currency" },
+        { key: "tanggalJalan", label: "Tanggal Jalan", type: "date" },
+        { key: "statusPengiriman", label: "Status Pengiriman" },
         {
             key: "action",
             label: "Action",
@@ -262,7 +289,12 @@ export default function OrderCustom() {
                     >
                         <Trash2 size={16} />
                     </button>
-
+                    <button
+                        onClick={() => router.push(`/pengiriman/${row.id}`)}
+                        className="p-2 text-green-600 hover:bg-green-100 rounded"
+                    >
+                        <Package size={16} />
+                    </button>
                 </div>
             ),
         }
@@ -281,9 +313,9 @@ export default function OrderCustom() {
                 </div>
             )}
             <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
-                <div className="p-3 flex items-center justify-between">
+                <div className="p-4 flex justify-end">
 
-                    <div className="hidden lg:block">
+                    {/* <div className="hidden lg:block">
                         <form onSubmit={(e) => e.preventDefault()}>
                             <div className="relative">
                                 <span className="absolute -translate-y-1/2 left-4 top-1/2 pointer-events-none">
@@ -300,21 +332,31 @@ export default function OrderCustom() {
                                 />
                             </div>
                         </form>
-                    </div>
+                    </div> */}
 
                     <Button
                         size="sm"
                         variant="primary"
                         endIcon={<PlusCircleIcon />}
                         onClick={() => {
-                            setMode("create");
+                            setMode("generate");
 
-                            setForm(initialForm);
+                            setForm({
+                                id: 0,
+                                truckId: "",
+                                sopir1: "",
+                                sopir2: "",
+                                name: "",
+                                totalHarga: "",
+                                totalBerat: "",
+                                tanggalJalan: "",
+                                statusPengiriman: "",
+                            });
 
                             openModal();
                         }}
                     >
-                        Create
+                        Pembuatan Pengiriman Barang / Generate Pengiriman
                     </Button>
 
                 </div>
@@ -324,7 +366,7 @@ export default function OrderCustom() {
                             loading ? (
                                 <p>Loading...</p>
                             ) : (
-                                <Table columns={columns} data={order} />
+                                <Table columns={columns} data={pengiriman} />
                             )
                         }
                     </div>
@@ -338,7 +380,7 @@ export default function OrderCustom() {
                 </div>
             </div>
 
-            <OrderCustomModal
+            <PengirimanModal
                 isOpen={isOpen}
                 onClose={closeModal}
                 form={form}
@@ -346,8 +388,9 @@ export default function OrderCustom() {
                 handleSubmit={handleSubmit}
                 mode={mode}
                 users={user}
+                trucks={truck}
             />
         </>
-    );
+    )
 
-} 
+}

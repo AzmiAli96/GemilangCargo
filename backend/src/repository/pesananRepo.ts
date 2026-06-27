@@ -1,6 +1,11 @@
 import { FilterHarga, pesananData } from "../types/pesanan";
 import prisma from "../db/prisma";
 
+export const allPesanan = async () => {
+    const pesanan = await prisma.pesanan.findMany();
+    return pesanan;
+}
+
 export const getpesanan = async (
     skip: number,
     take: number,
@@ -26,7 +31,8 @@ export const getpesanan = async (
         filterHarga === "hargaId"
             ? { hargaId: { not: null } }         // hanya yang ada hargaId
             : filterHarga === "hargaCustom"
-                ? { hargaCustom: { not: null } }      // hanya yang ada hargaCustom
+                ? { hargaCustom: { not: null
+                 } }      // hanya yang ada hargaCustom
                 : {};                                  // semua
 
     let pengirimanWhere = {};
@@ -45,7 +51,7 @@ export const getpesanan = async (
             ...pengirimanWhere,
         },
         orderBy: {
-            id: "desc",
+            prioritas: "desc",
         },
         include: {
             user: true,
@@ -124,24 +130,11 @@ export const createpesanan = async (item: pesananData) => {
     return pesanan;
 }
 
-export const updatepesanan = async (id: number, item: pesananData) => {
+export const updatepesanan = async (id: number, item: Partial<pesananData>) => {
     const pesanan = await prisma.pesanan.update({
-        where: { id: id },
+        where: { id },
         data: {
-            userId: item.userId,
-            hargaId: item.hargaId,
-            pengirimanId: item.pengirimanId,
-            noSpb: item.noSpb,
-            koli: item.koli,
-            berat: item.berat,
-            tujuan: item.tujuan,
-            hargaCustom: item.hargaCustom,
-            ket: item.ket,
-            prioritas: item.prioritas,
-            statusPay: item.statusPay,
-            tanggalMasuk: item.tanggalMasuk,
-            image: item.image,
-            total: item.total,
+            ...item,
         },
     });
     return pesanan;

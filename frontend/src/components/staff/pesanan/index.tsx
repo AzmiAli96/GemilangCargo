@@ -1,21 +1,42 @@
+import Pagination from "@/components/tables/Pagination";
 import Table from "@/components/tables/Table";
+import Alert from "@/components/ui/alert/Alert";
 import Button from "@/components/ui/button/Button";
 import { useModal } from "@/hooks/useModal";
 import { apiRequest } from "@/service/api.service";
-import { userData } from "@/types";
+import { Column, hargaData, pesananData, userData } from "@/types";
 import { Pencil, PlusCircleIcon, Search, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import UserModal from "./Modal";
-import Alert from "@/components/ui/alert/Alert";
-import Pagination from "@/components/tables/Pagination";
+import OrderModal from "./Modal";
+import Badge from "@/components/ui/badge/Badge";
 
-export default function Users() {
-    const [users, setUsers] = useState<userData[]>([]);
-    const [roles, setRoles] = useState<any[]>([]);
+const initialForm = {
+    id: 0,
+    userId: 0,
+    hargaId: "",
+    pengirimanId: 0,
+    noSpb: "",
+    koli: "",
+    berat: "",
+    tujuan: "",
+    ket: "",
+    prioritas: "",
+    statusPay: "",
+    total: "",
+    image: "",
+};
+
+export default function Pesanan() {
+    const [pesanan, setPesanan] = useState<pesananData[]>([]);
+    const [harga, setHarga] = useState<hargaData[]>([]);
+    const [user, setUser] = useState<userData[]>([]);
     const [loading, setLoading] = useState(true);
+    const [page, setPage] = useState(1);
+    const [search, setSearch] = useState("");
     const { isOpen, openModal, closeModal } = useModal();
     const [mode, setMode] = useState<"create" | "edit">("create");
-    const [search, setSearch] = useState("");
+
+    const [form, setForm] = useState(initialForm);
 
     const [meta, setMeta] = useState({
         total: 0,
@@ -28,74 +49,61 @@ export default function Users() {
         message: string;
     } | null>(null);
 
-    const [form, setForm] = useState({
-        id: 0,
-        name: "",
-        email: "",
-        alamat: "",
-        noHp: "",
-        roleId: "",
-    });
-
-    const getUsers = async (pageNumber = 1) => {
+    const getPesanan = async (pageNumber = 1) => {
         try {
             setLoading(true);
             const res = await apiRequest({
-                endpoint: `/users?page=${pageNumber}&limit=10&search=${search}`,
+                endpoint: `/pesanan?pengirimanId=null&filterHarga=hargaId&page=${pageNumber}&limit=10&search=${search}`
             });
 
-            console.log("FULL RESPONSE:", res);
-            console.log("ARRAY USERS:", res.data.data);
-            setUsers(res.data.data);
-            setMeta(res.data.meta);
+            console.log("Data Full Pesanan:", res);
+            console.log("Array Pesanan:", res.data);
+            setPesanan(res.data.data);
+            setMeta(res.data.meta)
         } catch (error) {
-            console.error("Gagal ambil data Users:", error);
-            // toast.error("Gagal mengambil data asal produksi.");
+            console.error("gagal dapat data Pesanan:", error);
         } finally {
             setLoading(false);
         }
     }
 
-    const getRoles = async () => {
+    const getUsers = async () => {
         try {
             const res = await apiRequest({
-                endpoint: "/roles",
+                endpoint: "/allusers"
             });
-            console.log("Role:", res);
-            setRoles(res.data);
+            console.log("Users:", res);
+            setUser(res.data);
         } catch (error) {
-            console.error("Gagal ambil roles:", error);
+            console.error("Gagal ambil users:", error);
         }
-    };
+    }
+
+    const getHarga = async () => {
+        try {
+            const res = await apiRequest({
+                endpoint: "/allharga"
+            });
+            console.log("Harga:", res);
+            setHarga(res.data);
+        } catch (error) {
+            console.error("Gagal ambil Harga:", error);
+        }
+    }
 
     useEffect(() => {
-        getUsers(1);
-        getRoles();
-    }, []);
+        getPesanan(page);
+        getUsers();
+        getHarga();
+    }, [page, search]);
 
-    const handleDelete = async (id: number) => {
-        const confirmDelete = confirm("Yakin mau hapus user ini?");
-        if (!confirmDelete) return;
+    useEffect(() => {
+        const delay = setTimeout(() => {
+            getPesanan(1);
+        }, 500);
 
-        try {
-            await apiRequest({
-                endpoint: `/users/${id}`,
-                method: "DELETE",
-            });
-
-            setAlert({
-                type: "success",
-                message: "User berhasil dihapus",
-            });
-            getUsers(); // refresh data
-        } catch (error) {
-            setAlert({
-                type: "error",
-                message: "Gagal membuat user",
-            });
-            console.error("Gagal delete:", error);
-        }
-    };
+        return () => clearTimeout(delay);
+    }, [search]);
 
     const handleChange = (e: any) => {
         setForm({
@@ -107,83 +115,83 @@ export default function Users() {
     const handleCreate = async () => {
         try {
             await apiRequest({
-                endpoint: "/register",
+                endpoint: "/pesanan",
                 method: "POST",
                 data: {
                     ...form,
-                    roleId: Number(form.roleId),
+                    userId: Number(form.userId),
+                    hargaId: Number(form.hargaId),
+                    pengirimanId: form.pengirimanId ? Number(form.pengirimanId) : null,
+                    koli: Number(form.koli),
+                    berat: Number(form.berat),
+                    total: Number(form.total),
                 },
             });
 
             closeModal();
-            setForm({
-                id: 0,
-                name: "",
-                email: "",
-                alamat: "",
-                noHp: "",
-                roleId: "",
-            });
+            setForm(initialForm);
 
             setAlert({
                 type: "success",
-                message: "User berhasil dibuat",
+                message: "pemesanan barang berhasil dibuat",
             });
-            console.log("EMAIL:", form.email);
-
-            getUsers(); // refresh
+            getPesanan();
         } catch (error) {
             setAlert({
                 type: "error",
-                message: "Gagal membuat user",
+                message: "Gagal membuat membuat pesanan barang",
             });
-            console.error("Gagal create:", error);
+            console.error("console.error", error);
         }
-    };
+    }
 
     const handleEdit = (row: any) => {
         setMode("edit");
 
         setForm({
             id: row.id,
-            name: row.name || "",
-            email: row.email || "",
-            alamat: row.alamat || "",
-            noHp: row.noHp || "",
-            roleId: String(row.roleId || ""),
+            userId: row.userId,
+            hargaId: row.hargaId,
+            pengirimanId: row.pengirimanId,
+            noSpb: row.noSpb || "",
+            koli: row.koli || "",
+            berat: row.berat || "",
+            tujuan: row.tujuan || "",
+            ket: row.ket || "",
+            prioritas: row.prioritas || "",
+            statusPay: row.statusPay || "",
+            total: row.total || "",
+            image: row.image || "",
         });
 
         openModal();
     };
 
-
     const handleUpdate = async () => {
         try {
             await apiRequest({
-                endpoint: `/users/${form.id}`,
+                endpoint: `/pesanan/${form.id}`,
                 method: "PUT",
                 data: {
                     ...form,
-                    email: form.email || undefined,
-                    roleId: Number(form.roleId),
-                },
+                }
             });
 
             setAlert({
                 type: "success",
-                message: "User berhasil diupdate",
+                message: "Pesanan berhasil diupdate",
             });
 
             closeModal();
-            getUsers();
+            getPesanan();
         } catch (error) {
             setAlert({
                 type: "error",
-                message: "Gagal update user",
+                message: "Gagal membuat update data barang Pesanan"
             });
-            console.error("Gagal update:", error);
+            console.error("console.error", error);
         }
-    };
+    }
 
     const handleSubmit = async () => {
         if (mode === "create") {
@@ -191,7 +199,31 @@ export default function Users() {
         } else {
             await handleUpdate();
         }
-    };
+    }
+
+    const handleDelete = async (id: number) => {
+        const confirmDelete = confirm("Yakin mau hapus user ini?");
+        if (!confirmDelete) return;
+
+        try {
+            await apiRequest({
+                endpoint: `/pesanan/${id}`,
+                method: "DELETE",
+            });
+
+            setAlert({
+                type: "success",
+                message: "List Barang Pesanan berhasil dihapus",
+            });
+            getPesanan();
+        } catch (error) {
+            setAlert({
+                type: "error",
+                message: "Gagal menghapus Pesanan",
+            });
+            console.error("Gagal delete:", error);
+        }
+    }
 
     useEffect(() => {
         if (alert) {
@@ -203,28 +235,35 @@ export default function Users() {
         }
     }, [alert]);
 
-    useEffect(() => {
-        const delay = setTimeout(() => {
-            getUsers(1);
-        }, 500);
+    const columns: Column[] = [
+        { key: "noSpb", label: "No SPB" },
+        { key: "user.name", label: "Customer" },
+        { key: "koli", label: "Koli" },
+        { key: "berat", label: "Berat" },
+        { key: "tujuan", label: "Alamat Tujuan" },
+        { key: "harga.hargaTarif", label: "harga", type: "currency", },
+        {key: "total", label:"Total", type: "currency"},
+        {
+            key: "prioritas",
+            label: "Prioritas",
+            render: (row: any) => {
+                const v = row.prioritas?.trim().toLowerCase() || "";
 
-        return () => clearTimeout(delay);
-    }, [search]);
-
-
-    const columns = [
-        { key: "name", label: "Nama / Toko" },
-        { key: "email", label: "Email" },
-        { key: "alamat", label: "Alamat" },
-        { key: "noHp", label: "No. Telepon" },
-        { key: "role.name", label: "Role" },
+                if (v.includes("tinggi")) {
+                    return <Badge variant="light" color="error">Prioritas Tinggi</Badge>;
+                }
+                if (v.includes("sedang")) {
+                    return <Badge variant="light" color="warning">Prioritas Sedang</Badge>;
+                }
+                return <Badge variant="light" color="info">Prioritas Rendah</Badge>;
+            }
+        },
         {
             key: "action",
             label: "Action",
             render: (row: any) => (
                 <div className="flex gap-2">
 
-                    {/* EDIT */}
                     <button
                         onClick={() => handleEdit(row)}
                         className="p-2 text-blue-600 hover:bg-blue-100 rounded"
@@ -232,7 +271,6 @@ export default function Users() {
                         <Pencil size={16} />
                     </button>
 
-                    {/* DELETE */}
                     <button
                         onClick={() => handleDelete(row.id)}
                         className="p-2 text-red-600 hover:bg-red-100 rounded"
@@ -242,7 +280,7 @@ export default function Users() {
 
                 </div>
             ),
-        },
+        }
     ];
 
     return (
@@ -260,7 +298,6 @@ export default function Users() {
             <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
                 <div className="p-3 flex items-center justify-between">
 
-                    {/* 🔍 SEARCH (KIRI) */}
                     <div className="hidden lg:block">
                         <form onSubmit={(e) => e.preventDefault()}>
                             <div className="relative">
@@ -269,7 +306,7 @@ export default function Users() {
                                 </span>
                                 <input
                                     type="text"
-                                    placeholder="Search nama, email, atau no telp..."
+                                    placeholder="Search Provinsi, kota & harga..."
                                     value={search}
                                     onChange={(e) => {
                                         setSearch(e.target.value);
@@ -280,7 +317,6 @@ export default function Users() {
                         </form>
                     </div>
 
-                    {/* ➕ CREATE (KANAN) */}
                     <Button
                         size="sm"
                         variant="primary"
@@ -288,19 +324,12 @@ export default function Users() {
                         onClick={() => {
                             setMode("create");
 
-                            setForm({
-                                id: 0,
-                                name: "",
-                                email: "",
-                                alamat: "",
-                                noHp: "",
-                                roleId: "",
-                            });
+                            setForm(initialForm);
 
                             openModal();
                         }}
                     >
-                        Pembuatan Pelanggan / sopir
+                        Pembuatan Pesanan Barang
                     </Button>
 
                 </div>
@@ -310,7 +339,7 @@ export default function Users() {
                             loading ? (
                                 <p>Loading...</p>
                             ) : (
-                                <Table columns={columns} data={users} />
+                                <Table columns={columns} data={pesanan} />
                             )
                         }
                     </div>
@@ -319,20 +348,22 @@ export default function Users() {
                     <Pagination
                         currentPage={meta.page}
                         totalPages={meta.lastPage}
-                        onPageChange={(page) => getUsers(page)}
+                        onPageChange={(page) => setPage(page)}
                     />
                 </div>
             </div>
 
-            <UserModal
+            <OrderModal
                 isOpen={isOpen}
                 onClose={closeModal}
                 form={form}
                 handleChange={handleChange}
                 handleSubmit={handleSubmit}
                 mode={mode}
-                roles={roles}
+                users={user}
+                hargas={harga}
             />
         </>
     );
-}
+
+} 

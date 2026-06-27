@@ -3,7 +3,7 @@ type Column = {
   key: string;
   label: React.ReactNode;
   render?: (row: any) => React.ReactNode;
-  type?: "text" | "currency" | "number" | "date";
+  type?: "text" | "currency" | "number" | "date" | "weight";
 };
 
 type Props = {
@@ -36,6 +36,9 @@ export default function Table({ columns, data }: Props) {
 
       case "number":
         return new Intl.NumberFormat("id-ID").format(value);
+
+      case "weight":
+        return `${new Intl.NumberFormat("id-ID").format(value)} KG`;
 
       default:
         return value;

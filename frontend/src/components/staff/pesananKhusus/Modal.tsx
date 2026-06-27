@@ -62,7 +62,7 @@ export default function OrderCustomModal({
                         {mode === "edit" ? "Edit User" : "Add User"}
                     </h5>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Pembuatan Orderan untuk customer. pastikan memberikan informasi yang benar.
+                        Pembuatan Pesanan Khusus untuk customer. pastikan memberikan informasi yang benar.
                     </p>
                 </div>
                 <div className="space-y-4 mt-6">
@@ -75,12 +75,12 @@ export default function OrderCustomModal({
                         />
                     </div>
                     <div>
-                        <Label>Customer / user</Label>
+                        <Label>Pelanggan / user</Label>
                         <div className="relative">
                             <SelectSearch
                                 options={optionsUsers}
                                 value={String(form.userId || "")}
-                                placeholder="select customer"
+                                placeholder="select pelanggan"
                                 onChange={handleUserChange}
                                 className="dark:bg-dark-900"
                             />
@@ -115,8 +115,8 @@ export default function OrderCustomModal({
                     </div>
                     <div>
                         <Label>Alamat Tujuan</Label>
-                        <Input name="alamaTujuan"
-                            value={form.alamaTujuan}
+                        <Input name="tujuan"
+                            value={form.tujuan}
                             onChange={handleChange}
                             placeholder="ex: Jl. example "
                             type="text"
@@ -128,7 +128,7 @@ export default function OrderCustomModal({
                             <div className="relative">
                                 <Select
                                     options={optionsPembayaran}
-                                    value={String(form.statusPembayaran || "")}
+                                    value={String(form.statusPay || "")}
                                     placeholder="Select Status Pembayaran"
                                     onChange={handlePembayaranChange}
                                     className="dark:bg-dark-900"

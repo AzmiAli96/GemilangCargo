@@ -14,7 +14,7 @@ type Props = {
     handleSubmit: () => void;
     mode: "create" | "edit";
     users: any[];
-    prices: any[];
+    hargas: any[];
 };
 
 export default function OrderModal({
@@ -25,7 +25,7 @@ export default function OrderModal({
     handleSubmit,
     mode,
     users,
-    prices
+    hargas
 }: Props) {
     const optionsUsers = users
         ?.filter((user) => user.roleId === 2 || user.roleId === 4)
@@ -43,25 +43,25 @@ export default function OrderModal({
         });
     };
 
-    const optionsPrices = prices?.map((price) => ({
-        value: String(price.id),
+    const optionsHargas = hargas?.map((harga) => ({
+        value: String(harga.id),
         label: [
-            price.kota ?? "NO Kota",
-            price.hargaTarif
+            harga.kota ?? "NO Kota",
+            harga.hargaTarif
                 ? new Intl.NumberFormat("id-ID", {
                     style: "currency",
                     currency: "IDR",
                     minimumFractionDigits: 0,
-                }).format(Number(price.hargaTarif))
-                : "No Price",
+                }).format(Number(harga.hargaTarif))
+                : "Harga Kosong / belum terisi",
         ].join(" - "),
-        hargaTarif: price.hargaTarif,
+        hargaTarif: harga.hargaTarif,
     })) || [];
 
-    const handlePriceChange = (value: string) => {
+    const handleHargaChange = (value: string) => {
         handleChange({
             target: {
-                name: "priceId",
+                name: "hargaId",
                 value: value,
             },
         });
@@ -78,16 +78,16 @@ export default function OrderModal({
         });
     };
 
-    const selectedPrice = optionsPrices.find(
-        (p) => p.value == form.priceId
+    const selectedHarga = optionsHargas.find(
+        (p) => p.value == form.hargaId
     );
 
-    console.log("form.priceId", form.priceId);
+    console.log("form.hargaId", form.hargaId);
     // console.log("optionsUsers", optionsUsers);
 
     const total =
         Number(form.berat || 0) *
-        Number(selectedPrice?.hargaTarif || 0);
+        Number(selectedHarga?.hargaTarif || 0);
 
     return (
         <Modal
@@ -101,7 +101,7 @@ export default function OrderModal({
                         {mode === "edit" ? "Edit Order" : "Add Order"}
                     </h5>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Pembuatan Orderan untuk customer. pastikan memberikan informasi yang benar.
+                        Pembuatan Pesanan barang untuk pelanggan. pastikan memberikan informasi yang benar.
                     </p>
                 </div>
                 <div className="space-y-4 mt-6">
@@ -114,7 +114,7 @@ export default function OrderModal({
                         />
                     </div>
                     <div>
-                        <Label>Customer / user</Label>
+                        <Label>Pelanggan / user</Label>
                         <div className="relative">
                             <SelectSearch
                                 options={optionsUsers}
@@ -155,10 +155,10 @@ export default function OrderModal({
                         <Label>Kota Tujuan</Label>
                         <div className="relative">
                             <SelectSearch
-                                options={optionsPrices}
-                                value={String(form.priceId || "")}
+                                options={optionsHargas}
+                                value={String(form.hargaId || "")}
                                 placeholder="Select Kota Tujuan"
-                                onChange={handlePriceChange}
+                                onChange={handleHargaChange}
                                 className="dark:bg-dark-900"
                             />
                             <span className="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
@@ -168,8 +168,8 @@ export default function OrderModal({
                     </div>
                     <div>
                         <Label>Alamat Tujuan</Label>
-                        <Input name="alamaTujuan"
-                            value={form.alamaTujuan}
+                        <Input name="tujuan"
+                            value={form.tujuan}
                             onChange={handleChange}
                             placeholder="ex: Jl. example "
                             type="text"
@@ -181,7 +181,7 @@ export default function OrderModal({
                             <div className="relative">
                                 <Select
                                     options={optionsPembayaran}
-                                    value={String(form.statusPembayaran || "")}
+                                    value={String(form.statusPay || "")}
                                     placeholder="Select Status Pembayaran"
                                     onChange={handlePembayaranChange}
                                     className="dark:bg-dark-900"
