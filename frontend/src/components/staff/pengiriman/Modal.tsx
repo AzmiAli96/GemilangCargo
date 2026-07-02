@@ -4,6 +4,7 @@ import Label from "@/components/form/Label";
 import Select from "@/components/form/Select";
 import { Modal } from "@/components/ui/modal";
 import { ChevronDownIcon } from "lucide-react";
+import { useState } from "react";
 
 type Props = {
     isOpen: boolean;
@@ -26,6 +27,27 @@ export default function PengirimanModal({
     users,
     trucks,
 }: Props) {
+    const [errors, setErrors] = useState({
+        sopir1: "",
+    });
+
+    const onSubmit = () => {
+        const newErrors = {
+            sopir1: "",
+        };
+
+        let valid = true;
+
+        if (!form.sopir1?.trim()) {
+            newErrors.sopir1 = "Nama wajib diisi";
+            valid = false;
+        }
+
+        setErrors(newErrors);
+        if (!valid) return;
+        handleSubmit();
+    };
+
     const optionsSopir = users?.filter((user) => user.roleId === 3).map((user) => ({
         value: String(user.id),
         label: user.name,
@@ -38,6 +60,11 @@ export default function PengirimanModal({
                 value,
             }
         });
+
+        setErrors((prev) => ({
+            ...prev,
+            sopir1: "",
+        }));
     };
 
     const optionsPengiriman = [
@@ -80,13 +107,14 @@ export default function PengirimanModal({
                         {mode === "edit" ? (
                             <>
                                 <div>
-                                    <Label>Sopir 1</Label>
+                                    <Label>Sopir 1 *</Label>
                                     <Select
                                         options={optionsSopir}
                                         value={String(form.sopir1 || "")}
                                         onChange={(value) => handleSopirChange("sopir1", value)}
                                         placeholder="select sopir"
-                                        className="dark:bg-dark-900"
+                                        error={!!errors.sopir1}
+                                        hint={errors.sopir1}
                                     />
                                 </div>
                                 <div>

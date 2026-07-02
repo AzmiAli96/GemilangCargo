@@ -25,6 +25,26 @@ export default function UserModal({
     roles,
 }: Props) {
     const [showPassword, setShowPassword] = useState(false);
+    const [errors, setErrors] = useState({
+        name: "",
+    });
+
+    const onSubmit = () => {
+        const newErrors = {
+            name: "",
+        };
+
+        let valid = true;
+
+        if (!form.name?.trim()) {
+            newErrors.name = "Nama wajib diisi";
+            valid = false;
+        }
+
+        setErrors(newErrors);
+        if (!valid) return;
+        handleSubmit();
+    };
 
     const options = roles?.map((role) => ({
         value: String(role.id),
@@ -62,8 +82,16 @@ export default function UserModal({
                         <Label>Name *</Label>
                         <Input name="name"
                             value={form.name}
-                            onChange={handleChange}
+                            onChange={(e) => {
+                                handleChange(e);
+                                setErrors((prev) => ({
+                                    ...prev,
+                                    name: "",
+                                }));
+                            }}
                             type="text"
+                            error={!!errors.name}
+                            hint={errors.name}
                         />
                     </div>
                     <div>
@@ -121,7 +149,7 @@ export default function UserModal({
                         <div className="relative">
                             <Select
                                 options={options}
-                                value={form.roleId || ""} 
+                                value={form.roleId || ""}
                                 placeholder="Select Role"
                                 onChange={handleRoleChange}
                                 className="dark:bg-dark-900"
@@ -141,7 +169,7 @@ export default function UserModal({
                         </button>
 
                         <button
-                            onClick={handleSubmit}
+                            onClick={onSubmit}
                             className="btn btn-success btn-update-event flex w-full justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 sm:w-auto"
                         >
                             Simpan

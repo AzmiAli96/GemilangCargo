@@ -116,6 +116,7 @@ export default function PengirimanPesanan() {
         getPesanan(page);
         getUsers();
         getHarga();
+        getPengirimanDetail();
     }, [page, search]);
 
     useEffect(() => {
@@ -182,6 +183,7 @@ export default function PengirimanPesanan() {
             });
 
             getPesanan();
+            getPengirimanDetail();
 
             setAlert({
                 type: "success",

@@ -37,9 +37,13 @@ export default function MonthlyTarget() {
     getPesanan();
   }, []);
 
-  const totalPesanan = pesanan.length;
+  const pesananPengiriman = pesanan.filter((item) =>
+    item.pengirimanId !== null
+  );
 
-  const totalBelumLunas = pesanan.filter(
+  const totalPesanan = pesananPengiriman.length;
+
+  const totalBelumLunas = pesananPengiriman.filter(
     (item) => item.statusPay === "Belum Lunas"
   ).length;
 
@@ -58,7 +62,7 @@ export default function MonthlyTarget() {
 
   // total nominal belum lunas
   const totalNominalBelumLunas =
-    pesanan
+    pesananPengiriman
       .filter((item) => item.statusPay === "Belum Lunas")
       .reduce(
         (sum, item) =>

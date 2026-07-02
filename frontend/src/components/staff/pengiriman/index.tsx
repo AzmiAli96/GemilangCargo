@@ -251,7 +251,8 @@ export default function Pengiriman() {
     }, [alert]);
 
     const columns: Column[] = [
-        {
+        
+        { key: "id", label: "ID" },{
             key: "sopir",
             label: "Sopir",
             render: (row: any) => {

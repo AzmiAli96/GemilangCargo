@@ -31,8 +31,11 @@ export const getpesanan = async (
         filterHarga === "hargaId"
             ? { hargaId: { not: null } }         // hanya yang ada hargaId
             : filterHarga === "hargaCustom"
-                ? { hargaCustom: { not: null
-                 } }      // hanya yang ada hargaCustom
+                ? {
+                    hargaCustom: {
+                        not: null
+                    }
+                }      // hanya yang ada hargaCustom
                 : {};                                  // semua
 
     let pengirimanWhere = {};
@@ -147,16 +150,42 @@ export const deletepesanan = async (id: number) => {
     return pesanan;
 }
 
-export const assignpesananToPengiriman = async (pesananIds: number[], pengiriman: number) => {
-    return await prisma.pesanan.updateMany({
-        where: {
-            id: {
-                in: pesananIds,
-            },
-            pengirimanId: null,
-        },
-        data: {
-            pengirimanId: pengiriman,
+export const recalculatePengiriman = async (pengirimanId: number) => {
+    const pesanan = await prisma.pesanan.findMany({
+        where: { pengirimanId, },
+        select: {
+            berat: true,
+            total: true,
         },
     });
+
+    const totalBerat = pesanan.reduce(
+        (sum, item) => sum + Number(item.berat || 0), 0
+    );
+
+    const totalHarga = pesanan.reduce(
+        (sum, item) => sum + Number(item.total || 0), 0
+    );
+
+    await prisma.pengiriman.update({
+        where: { id: pengirimanId, },
+        data: {
+            totalBerat,
+            totalHarga,
+        },
+    });
+};
+
+export const assignpesananToPengiriman = async (pesananIds: number[], pengirimanId: number) => {
+    const result = await prisma.pesanan.updateMany({
+        where: {
+            id: { in: pesananIds, },
+            pengirimanId: null,
+        },
+        data: { pengirimanId, },
+    });
+
+    await recalculatePengiriman(pengirimanId);
+
+    return result;
 };

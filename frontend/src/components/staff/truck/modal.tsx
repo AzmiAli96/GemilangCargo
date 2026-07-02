@@ -1,6 +1,7 @@
 import Input from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
 import { Modal } from "@/components/ui/modal";
+import { useState } from "react";
 
 type Props = {
     isOpen: boolean;
@@ -19,6 +20,38 @@ export default function TruckModal({
     handleSubmit,
     mode,
 }: Props) {
+    const [errors, setErrors] = useState({
+            kode: "",
+            kapasitas: "",
+            bb: "",
+        });
+    
+        const onSubmit = () => {
+            const newErrors = {
+                kode: "",
+                kapasitas: "",
+                bb: "",
+            };
+    
+            let valid = true;
+    
+            if (!form.kode?.trim()) {
+                newErrors.kode = "kode wajib diisi";
+                valid = false;
+            }
+            if (!form.kapasitas?.trim()) {
+                newErrors.kapasitas = "kapasitas wajib diisi";
+                valid = false;
+            }
+            if (!form.bb?.trim()) {
+                newErrors.bb = "Biaya Berangkat wajib diisi";
+                valid = false;
+            }
+    
+            setErrors(newErrors);
+            if (!valid) return;
+            handleSubmit();
+        };
     return (
         <Modal
             isOpen={isOpen}
@@ -28,7 +61,7 @@ export default function TruckModal({
             <div className="flex flex-col px-2 overflow-y-auto custom-scrollbar">
                 <div>
                     <h5 className="mb-2 font-semibold text-gray-800 modal-title text-theme-xl dark:text-white/90 lg:text-2xl">
-                        {mode === "edit" ? "Edit Pemasukkan Truck" : "Add Pemasukkan Truck"}
+                        {mode === "edit" ? "Ubah Pemasukkan Truck" : "Pembuatan Truck yang akan Berangkat"}
                     </h5>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                         Pembuatan Truck, untuk memasukkan data truck baru. pastikan memberikan Harga yang benar.
@@ -39,25 +72,49 @@ export default function TruckModal({
                         <Label>Kode</Label>
                         <Input name="kode"
                             value={form.kode}
-                            onChange={handleChange}
+                            onChange={(e) => {
+                                handleChange(e);
+                                setErrors((prev) => ({
+                                    ...prev,
+                                    kode: "",
+                                }));
+                            }}
                             type="text"
+                            error={!!errors.kode}
+                            hint={errors.kode}
                         />
                     </div>
                     <div>
                         <Label>Kapasitas</Label>
                         <Input name="kapasitas"
                             value={form.kapasitas}
-                            onChange={handleChange}
-                            type="text"
+                            onChange={(e) => {
+                                handleChange(e);
+                                setErrors((prev) => ({
+                                    ...prev,
+                                    kapasitas: "",
+                                }));
+                            }}
+                            type="number"
+                            error={!!errors.kapasitas}
+                            hint={errors.kapasitas}
                         />
                     </div>
                     <div>
                         <Label>Biaya Berangkat</Label>
                         <Input name="bb"
                             value={form.bb}
-                            onChange={handleChange}
+                            onChange={(e) => {
+                                handleChange(e);
+                                setErrors((prev) => ({
+                                    ...prev,
+                                    bb: "",
+                                }));
+                            }}
                             placeholder="ex: 2000000"
                             type="number"
+                            error={!!errors.bb}
+                            hint={errors.bb}
                         />
                     </div>
 
@@ -70,7 +127,7 @@ export default function TruckModal({
                         </button>
 
                         <button
-                            onClick={handleSubmit}
+                            onClick={onSubmit}
                             className="btn btn-success btn-update-event flex w-full justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 sm:w-auto"
                         >
                             Simpan

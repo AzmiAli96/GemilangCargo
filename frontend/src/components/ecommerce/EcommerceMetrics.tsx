@@ -56,7 +56,7 @@ export const EcommerceMetrics = () => {
   ).length;
 
   const totalStatusPay = pesanan.filter(
-    (pesanan) => pesanan.statusPay === "Belum Lunas"
+    (pesanan) => pesanan.statusPay === "Belum Lunas" && pesanan.pengirimanId != null
   ).length;
 
   return (

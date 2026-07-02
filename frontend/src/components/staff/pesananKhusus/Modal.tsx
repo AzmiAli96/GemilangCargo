@@ -5,6 +5,7 @@ import Select from "@/components/form/Select";
 import SelectSearch from "@/components/form/SelectSearch";
 import { Modal } from "@/components/ui/modal";
 import { ChevronDownIcon } from "lucide-react";
+import { useState } from "react";
 
 type Props = {
     isOpen: boolean;
@@ -25,6 +26,57 @@ export default function OrderCustomModal({
     mode,
     users,
 }: Props) {
+    const [errors, setErrors] = useState({
+        noSpb: "",
+        userId: "",
+        koli: "",
+        berat: "",
+        hargaCustom: "",
+        tujuan: "",
+    });
+
+    const onSubmit = () => {
+        const newErrors = {
+            noSpb: "",
+            userId: "",
+            koli: "",
+            berat: "",
+            hargaCustom: "",
+            tujuan: "",
+        };
+
+        let valid = true;
+
+        if (!form.noSpb?.trim()) {
+            newErrors.noSpb = "noSpb wajib diisi";
+            valid = false;
+        }
+        if (!form.userId) {
+            newErrors.userId = "Pelanggan wajib diisi";
+            valid = false;
+        }
+        if (!form.koli?.trim()) {
+            newErrors.koli = "Koli wajib diisi";
+            valid = false;
+        }
+        if (!form.berat?.trim()) {
+            newErrors.berat = "Berat wajib diisi";
+            valid = false;
+        }
+        if (!form.hargaCustom) {
+            newErrors.hargaCustom = "Harga wajib diisi";
+            valid = false;
+        }
+        if (!form.tujuan?.trim()) {
+            newErrors.tujuan = "Tujuan wajib diisi";
+            valid = false;
+        }
+
+        setErrors(newErrors);
+        if (!valid) return;
+        handleSubmit();
+    };
+
     const optionsUsers = users?.map((user) => ({
         value: String(user.id),
         label: user.name,
@@ -37,6 +89,10 @@ export default function OrderCustomModal({
                 value: value,
             },
         });
+        setErrors((prev) => ({
+            ...prev,
+            userId: "",
+        }));
     };
 
     const optionsPembayaran = [
@@ -67,22 +123,31 @@ export default function OrderCustomModal({
                 </div>
                 <div className="space-y-4 mt-6">
                     <div>
-                        <Label>No SPB</Label>
+                        <Label>No SPB *</Label>
                         <Input name="noSpb"
                             value={form.noSpb}
-                            onChange={handleChange}
+                            onChange={(e) => {
+                                handleChange(e);
+                                setErrors((prev) => ({
+                                    ...prev,
+                                    noSpb: "",
+                                }));
+                            }}
                             type="text"
+                            error={!!errors.noSpb}
+                            hint={errors.noSpb}
                         />
                     </div>
                     <div>
-                        <Label>Pelanggan / user</Label>
+                        <Label>Pelanggan / user *</Label>
                         <div className="relative">
                             <SelectSearch
                                 options={optionsUsers}
                                 value={String(form.userId || "")}
                                 placeholder="select pelanggan"
                                 onChange={handleUserChange}
-                                className="dark:bg-dark-900"
+                                error={!!errors.userId}
+                                hint={errors.userId}
                             />
                             <span className="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
                                 <ChevronDownIcon />
@@ -90,36 +155,69 @@ export default function OrderCustomModal({
                         </div>
                     </div>
                     <div>
-                        <Label>KOLI</Label>
+                        <Label>KOLI *</Label>
                         <Input name="koli"
                             value={form.koli}
-                            onChange={handleChange}
+                            onChange={(e) => {
+                                handleChange(e);
+                                setErrors((prev) => ({
+                                    ...prev,
+                                    koli: "",
+                                }));
+                            }}
                             type="text"
+                            error={!!errors.koli}
+                            hint={errors.koli}
                         />
                     </div>
                     <div>
-                        <Label>Berat</Label>
+                        <Label>Berat *</Label>
                         <Input name="berat"
                             value={form.berat}
-                            onChange={handleChange}
+                            onChange={(e) => {
+                                handleChange(e);
+                                setErrors((prev) => ({
+                                    ...prev,
+                                    berat: "",
+                                }));
+                            }}
                             type="text"
+                            className="pr-12"
+                            error={!!errors.berat}
+                            hint={errors.berat}
                         />
                     </div>
                     <div>
-                        <Label>Harga</Label>
+                        <Label>Harga *</Label>
                         <Input name="hargaCustom"
                             value={form.hargaCustom}
-                            onChange={handleChange}
+                            onChange={(e) => {
+                                handleChange(e);
+                                setErrors((prev) => ({
+                                    ...prev,
+                                    hargaCustom: "",
+                                }));
+                            }}
                             type="number"
+                            error={!!errors.hargaCustom}
+                            hint={errors.hargaCustom}
                         />
                     </div>
                     <div>
-                        <Label>Alamat Tujuan</Label>
+                        <Label>Alamat Tujuan *</Label>
                         <Input name="tujuan"
                             value={form.tujuan}
-                            onChange={handleChange}
+                            onChange={(e) => {
+                                handleChange(e);
+                                setErrors((prev) => ({
+                                    ...prev,
+                                    tujuan: "",
+                                }));
+                            }}
                             placeholder="ex: Jl. example "
                             type="text"
+                            error={!!errors.tujuan}
+                            hint={errors.tujuan}
                         />
                     </div>
                     {mode === "edit" && (
@@ -158,7 +256,7 @@ export default function OrderCustomModal({
                         </button>
 
                         <button
-                            onClick={handleSubmit}
+                            onClick={onSubmit}
                             className="btn btn-success btn-update-event flex w-full justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 sm:w-auto"
                         >
                             Simpan

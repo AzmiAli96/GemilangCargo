@@ -20,8 +20,8 @@ export default function Truck() {
     const [form, setForm] = useState({
         id: 0,
         kode: "",
-        kapasitas: 0,
-        bb: 0,
+        kapasitas: "",
+        bb: "",
         status: ""
     });
 
@@ -85,8 +85,8 @@ export default function Truck() {
             setForm({
                 id: 0,
                 kode: "",
-                kapasitas: 0,
-                bb: 0,
+                kapasitas: "",
+                bb: "",
                 status: ""
             });
             setAlert({
@@ -258,8 +258,8 @@ export default function Truck() {
                             setForm({
                                 id: 0,
                                 kode: "",
-                                kapasitas: 0,
-                                bb: 0,
+                                kapasitas: "",
+                                bb: "",
                                 status: ""
                             });
 

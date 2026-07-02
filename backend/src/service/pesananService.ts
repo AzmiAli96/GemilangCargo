@@ -1,5 +1,5 @@
 import { FilterHarga, pesananData } from "../types/pesanan";
-import { allPesanan, assignpesananToPengiriman, countpesanan, createpesanan, deletepesanan, getpesanan, pesananById, updatepesanan } from "../repository/pesananRepo";
+import { allPesanan, assignpesananToPengiriman, countpesanan, createpesanan, deletepesanan, getpesanan, pesananById, recalculatePengiriman, updatepesanan } from "../repository/pesananRepo";
 import { hitungPrioritas } from "../utils/kmeans";
 import { readExcel } from "../utils/excel";
 import { prisma } from "../db/prisma";
@@ -142,7 +142,7 @@ export const putpesanan = async (id: number, item: Partial<pesananData>) => {
             : oldPesanan.hargaId != null
                 ? Number(oldPesanan.hargaId)
                 : null;
- 
+
     const pesanan = await updatepesanan(id, {
         ...item,
         ...(item.userId !== undefined && { userId: Number(item.userId) }),
@@ -157,6 +157,15 @@ export const putpesanan = async (id: number, item: Partial<pesananData>) => {
             oldPesanan.statusPay ??
             "Belum Lunas",
     });
+
+    if (
+        oldPesanan.pengirimanId &&
+        item.pengirimanId === null
+    ) {
+        await recalculatePengiriman(
+            oldPesanan.pengirimanId
+        );
+    }
     return pesanan;
 };
 
