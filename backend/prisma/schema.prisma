@@ -13,20 +13,19 @@ model role {
 }
 
 model user {
-  id        Int       @id @default(autoincrement())
-  roleId    Int
-  name      String    @db.VarChar(100)
-  alamat    String?   @db.VarChar(255)
-  noHp      String?   @db.VarChar(13)
-  email     String?   @unique
-  password  String?
-  image     String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  // sopir     sopir[]
+  id         Int          @id @default(autoincrement())
+  roleId     Int
+  name       String       @db.VarChar(100)
+  alamat     String?      @db.VarChar(255)
+  noHp       String?      @db.VarChar(13)
+  email      String?      @unique
+  password   String?
+  image      String?
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
   pengiriman pengiriman[]
-  pesanan   pesanan[]
-  role      role      @relation(fields: [roleId], references: [id])
+  pesanan    pesanan[]
+  role       role         @relation(fields: [roleId], references: [id])
 }
 
 model harga {
@@ -34,15 +33,18 @@ model harga {
   provinsi   String    @db.VarChar(100)
   kota       String    @db.VarChar(100)
   hargaTarif Decimal   @db.Decimal(10, 2)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
   pesanan    pesanan[]
 }
 
 model truck {
   id         Int          @id @default(autoincrement())
-  kode       String       @db.VarChar(20)
-  kapasitas  Decimal      @db.Decimal(10, 2)
-  bb         Decimal      @db.Decimal(10, 2)
-  status     String       @db.VarChar(100)
+  platNomor  String       @unique @db.VarChar(20)
+  kondisi    String?      @db.VarChar(50)
+  status     String       @default("AKTIF") @db.VarChar(50)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
   pengiriman pengiriman[]
 }
 
@@ -69,6 +71,36 @@ model pesanan {
   user         user        @relation(fields: [userId], references: [id])
 }
 
+model pengiriman {
+  id               Int           @id @default(autoincrement())
+  truckId          Int
+  name             String?
+  kapasitas        Decimal       @db.Decimal(10, 2)
+  bb               Decimal       @db.Decimal(10, 2)
+  totalHarga       Decimal       @db.Decimal(10, 2)
+  totalBerat       Decimal       @db.Decimal(10, 2)
+  tanggalJalan     DateTime
+  statusPengiriman String        @db.VarChar(50)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  pesanan          pesanan[]
+  sopir            user[]
+  truck            truck         @relation(fields: [truckId], references: [id])
+  pengeluaran      pengeluaran[]
+}
+
+model pengeluaran {
+  id           Int         @id @default(autoincrement())
+  pengirimanId Int?
+  nama         String      @db.VarChar(100)
+  kategori     String      @db.VarChar(255)
+  nominal      Decimal     @db.Decimal(10, 2)
+  keterangan   String?      @db.VarChar(255)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  pengiriman   pengiriman? @relation(fields: [pengirimanId], references: [id])
+}
+
 // model sopir {
 //   id        Int      @id @default(autoincrement())
 //   userId    Int
@@ -77,19 +109,3 @@ model pesanan {
 //   pengiriman pengiriman[]
 //   user      user     @relation(fields: [userId], references: [id])
 // }
-
-model pengiriman {
-  id               Int       @id @default(autoincrement())
-  // sopirId          Int?
-  truckId          Int
-  name             String?
-  totalHarga       Decimal   @db.Decimal(10, 2)
-  totalBerat       Decimal   @db.Decimal(10, 2)
-  tanggalJalan     DateTime
-  statusPengiriman String    @db.VarChar(50)
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-  pesanan          pesanan[]
-  sopir            user[]
-  truck            truck     @relation(fields: [truckId], references: [id])
-}

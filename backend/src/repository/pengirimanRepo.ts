@@ -1,4 +1,4 @@
-import { pengirimanData } from "../types/pengiriman";
+import { GeneratePengirimanData, pengirimanData } from "../types/pengiriman";
 import prisma from "../db/prisma";
 import { pesananData } from "src/types/pesanan";
 
@@ -74,6 +74,8 @@ export const createpengiriman = async (item: pengirimanData) => {
         data: {
             name: item.name,
             truckId: item.truckId,
+            kapasitas: item.kapasitas,
+            bb: item.bb,
             totalHarga: item.totalHarga,
             totalBerat: item.totalBerat,
             tanggalJalan: item.tanggalJalan,
@@ -89,6 +91,8 @@ export const updatepengiriman = async (id: number, item: pengirimanData) => {
         data: {
             name: item.name,
             truckId: item.truckId,
+            kapasitas: item.kapasitas,
+            bb: item.bb,
             totalHarga: item.totalHarga,
             totalBerat: item.totalBerat,
             tanggalJalan: item.tanggalJalan,
@@ -105,35 +109,30 @@ export const updatepengiriman = async (id: number, item: pengirimanData) => {
     return pengiriman
 }
 
-export const createPengirimanGenerate = async (
-    truckId: number,
-    totalBerat: number,
-    totalHarga: number,
-    statusPengiriman: string
-) => {
+export const createPengirimanGenerate = async (item: GeneratePengirimanData) => {
     return prisma.pengiriman.create({
         data: {
-            truckId,
-            tanggalJalan: new Date(),
-            totalBerat,
-            totalHarga,
-            statusPengiriman
+            truckId: item.truckId,
+            kapasitas: item.kapasitas,
+            bb: item.bb,
+            totalBerat: item.totalBerat,
+            totalHarga: item.totalHarga,
+            tanggalJalan: item.tanggalJalan,
+            statusPengiriman: item.statusPengiriman
         }
     });
 };
 
-export const updatePengirimanGenerate = async (
-    id: number,
-    totalBerat: number,
-    totalHarga: number,
-    statusPengiriman: string
+export const updatePengirimanGenerate = async (id: number, item: GeneratePengirimanData
 ) => {
     return prisma.pengiriman.update({
         where: { id },
         data: {
-            totalBerat,
-            totalHarga,
-            statusPengiriman
+            kapasitas: item.kapasitas,
+            bb: item.bb,
+            totalBerat: item.totalBerat,
+            totalHarga: item.totalHarga,
+            statusPengiriman: item.statusPengiriman
         }
     });
 };
@@ -167,6 +166,19 @@ export const updatePesananPengiriman = async (
         }
     });
 };
+
+export const getPengirimanPending = async () => {
+    return await prisma.pengiriman.findMany({
+        where: {
+            statusPengiriman: "PENDING",
+        },
+        include: {
+            truck: true,
+            pesanan: true,
+        }
+    });
+}
+
 
 export const getTruckGenerate = async () => {
     return prisma.truck.findMany({

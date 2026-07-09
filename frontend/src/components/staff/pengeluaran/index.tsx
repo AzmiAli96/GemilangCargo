@@ -1,279 +1,209 @@
 "use client"
-
 import Pagination from "@/components/tables/Pagination";
 import Table from "@/components/tables/Table";
 import Alert from "@/components/ui/alert/Alert";
 import Button from "@/components/ui/button/Button";
 import { useModal } from "@/hooks/useModal";
 import { apiRequest } from "@/service/api.service";
-import { Column, GenerateTruck, pengirimanData, truckData, userData } from "@/types";
-import { Package, Pencil, PlusCircleIcon, Search, Trash2 } from "lucide-react";
+import { Column, pengeluaranData, pengirimanData } from "@/types";
+import { Pencil, PlusCircleIcon, Search, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import PengirimanModal from "./Modal";
+import PengeluaranModal from "./modal";
 
-export default function Pengiriman() {
+export default function Pengeluaran() {
+    const [pengeluaran, setPengeluaran] = useState<pengeluaranData[]>([]);
     const [pengiriman, setPengiriman] = useState<pengirimanData[]>([]);
-    const [truck, setTruck] = useState<truckData[]>([]);
-    const [user, setUser] = useState<userData[]>([]);
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState("");
     const { isOpen, openModal, closeModal } = useModal();
-    const [mode, setMode] = useState<"generate" | "edit">("generate");
-    const router = useRouter();
-
+    const [mode, setMode] = useState<"create" | "edit">("create");
     const [form, setForm] = useState({
         id: 0,
-        sopir1: "",
-        sopir2: "",
-        truckId: "",
-        name: "",
-        kapasitas: "",
-        bb: "",
-        totalHarga: "",
-        totalBerat: "",
-        tanggalJalan: "",
-        statusPengiriman: "",
+        pengirimanId: 0,
+        nama: "",
+        kategori: "",
+        nominal: "",
+        keterangan: "",
     });
-
     const [meta, setMeta] = useState({
         total: 0,
         page: 1,
         lastPage: 1,
     });
-
     const [alert, setAlert] = useState<{
         type: "success" | "error";
         message: string;
     } | null>(null);
 
-    const getPengiriman = async (pageNumber = 1) => {
+    const getPengeluaran = async (pageNumber = 1) => {
         try {
             setLoading(true);
             const res = await apiRequest({
-                endpoint: `/pengirimanpaginate?page=${pageNumber}&limit=10&search=${search}`
+                endpoint: `/pengeluaranpaginate?&page=${pageNumber}&limit=10&search=${search}`,
             });
-            console.log("Data Full pengiriman:", res.data.data);
-            console.log("Array pengiriman:", res.data);
-            setPengiriman(res.data.data);
-            setMeta(res.meta);
-
+            console.log("Data Pengeluaran", res.data.data);
+            setPengeluaran(res.data.data);
+            setMeta(res.data.meta);
+            setLoading(false);
         } catch (error) {
-            console.error("gagal dapat data Pengiriman:", error);
+            console.error("gagal mengambil data pengeluaran:", error);
         } finally {
             setLoading(false);
         }
     }
-    const getUsers = async () => {
-        try {
-            const res = await apiRequest({
-                endpoint: "/allusers"
-            });
-            console.log("Users:", res);
-            setUser(res.data);
-        } catch (error) {
-            console.error("Gagal ambil users:", error);
-        }
-    }
 
-    const getTrucks = async () => {
+    const getPengiriman = async () => {
         try {
             const res = await apiRequest({
-                endpoint: "/truck"
+                endpoint: "/pengiriman",
             });
-            // console.log("Data Full Truck:", res);
-            setTruck(res);
+            console.log("Data Pengiriman", res.data);
+            setPengiriman(res);
         } catch (error) {
-            console.error("gagal dapat data Truck:", error);
+            console.error("gagal mengambil data pengiriman:", error);
         }
     }
 
     useEffect(() => {
-        getPengiriman(page);
-        getUsers();
-        getTrucks();
-        // getDeliverySummary();
+        getPengeluaran();
+        getPengiriman();
     }, [page, search]);
 
     const handleChange = (e: any) => {
-        const { name, value } = e.target;
-
         setForm({
             ...form,
-            [name]: name === "bb" ? Number(value) : value,
+            [e.target.name]: e.target.value,
         });
-
     };
 
-    const handleGenerate = async (trucks: GenerateTruck[]) => {
+    const handleCreate = async () => {
         try {
-            const payload = {
-                truckList: trucks,
-                tanggalJalan: form.tanggalJalan
-                    ? new Date(form.tanggalJalan).toISOString()
-                    : null,
-            };
-
-            console.log("PAYLOAD:", payload);
-
-
             await apiRequest({
-                endpoint: "/pengiriman/generate",
+                endpoint: "/pengeluaran",
                 method: "POST",
-                data: payload,
+                data: {
+                    pengirimanId:
+                        form.pengirimanId
+                            ? Number(form.pengirimanId)
+                            : null,
+                    nama: form.nama,
+                    nominal: Number(form.nominal),
+                    kategori: form.kategori,
+                    keterangan: form.keterangan,
+                },
             });
-
-            await getPengiriman();
-            await getTrucks();
-
             closeModal();
             setForm({
                 id: 0,
-                truckId: "",
-                sopir1: "",
-                sopir2: "",
-                name: "",
-                kapasitas: "",
-                bb: "",
-                totalHarga: "",
-                totalBerat: "",
-                tanggalJalan: "",
-                statusPengiriman: "",
+                pengirimanId: 0,
+                nama: "",
+                kategori: "",
+                nominal: "",
+                keterangan: "",
             });
-
             setAlert({
                 type: "success",
-                message: "Generate pengiriman berhasil",
+                message: "Data pengeluaran berhasil ditambahkan",
             });
-            getPengiriman();
+            getPengeluaran();
         } catch (error) {
             setAlert({
                 type: "error",
-                message: "Generate pengiriman gagal",
+                message: "Data pengeluaran gagal ditambahkan",
             });
-            console.error("console.error", error);
+            console.error("gagal menambahkan data pengeluaran:", error);
         }
     }
 
     const handleEdit = (row: any) => {
         setMode("edit");
-
         setForm({
             id: row.id,
-            sopir1: row.sopir?.[0]?.id || "",
-            sopir2: row.sopir?.[1]?.id || "",
-            truckId: row.truckId || "",
-            name: row.name || "",
-            kapasitas: row.kapasitas || "",
-            bb: row.bb || "",
-            totalHarga: row.totalHarga || "",
-            totalBerat: row.totalBerat || "",
-            tanggalJalan: row.tanggalJalan || new Date(),
-            statusPengiriman: row.statusPengiriman || "",
+            pengirimanId: row.pengirimanId,
+            nama: row.nama,
+            kategori: row.kategori,
+            nominal: String(row.nominal),
+            keterangan: row.keterangan,
         });
-
         openModal();
     };
 
     const handleUpdate = async () => {
         try {
-            const payload = {
-                id: form.id,
-                truckId: Number(form.truckId),
-                name: form.name,
-                totalHarga: Number(form.totalHarga),
-                totalBerat: Number(form.totalBerat),
-                tanggalJalan: form.tanggalJalan,
-                statusPengiriman: form.statusPengiriman,
-                sopirIds: [
-                    form.sopir1 && Number(form.sopir1),
-                    form.sopir2 && Number(form.sopir2),
-                ].filter(Boolean),
-            };
-            console.log("payload", payload);
-
             await apiRequest({
-                endpoint: `/pengiriman/${form.id}`,
+                endpoint: `/pengeluaran/${form.id}`,
                 method: "PUT",
-                data: payload
+                data: {
+                    ...form,
+                    pengirimanId: Number(form.pengirimanId)
+                }
             });
 
             setAlert({
                 type: "success",
-                message: "Pengiriman berhasil diupdate",
+                message: "Pengeluaran berhasil diupdate",
             });
 
             closeModal();
-            getPengiriman();
+            getPengeluaran();
         } catch (error) {
             setAlert({
                 type: "error",
-                message: "Gagal membuat update data Pengiriman"
+                message: "Gagal membuat update data barang Pengeluaran"
             });
             console.error("console.error", error);
         }
     }
 
     const handleSubmit = async () => {
-        await handleUpdate();
-    };
+        if (mode === "create") {
+            await handleCreate();
+        } else {
+            await handleUpdate();
+        }
+    }
 
     const handleDelete = async (id: number) => {
-        const confirmDelete = confirm("Yakin mau hapus Data ini?");
+        const confirmDelete = confirm("Yakin mau hapus pengeluaran ini?");
         if (!confirmDelete) return;
 
         try {
             await apiRequest({
-                endpoint: `/pengiriman/${id}`,
+                endpoint: `/pengeluaran/${id}`,
                 method: "DELETE",
             });
 
             setAlert({
                 type: "success",
-                message: "Pengiriman berhasil dihapus",
+                message: "data Pengeluaran berhasil dihapus",
             });
-            getPengiriman();
+            getPengeluaran();
         } catch (error) {
             setAlert({
                 type: "error",
-                message: "Gagal menghapus Pengiriman",
+                message: "Gagal menghapus data Pengeluaran",
             });
             console.error("Gagal delete:", error);
         }
-    }
 
+    }
     useEffect(() => {
         if (alert) {
             const timer = setTimeout(() => {
                 setAlert(null);
             }, 5000);
-
             return () => clearTimeout(timer);
         }
     }, [alert]);
 
     const columns: Column[] = [
-
-        { key: "id", label: "ID" }, {
-            key: "sopir",
-            label: "Sopir",
-            render: (row: any) => {
-                if (!row.sopir || row.sopir.length === 0) {
-                    return "-";
-                }
-                return row.sopir.map(
-                    (user: any) => user.name
-                ).join(" / ");
-            },
-        },
-        { key: "truck.platNomor", label: "Truck" },
-        { key: "kapasitas", label: "Kapasitas", type: "weight" },
-        { key: "totalBerat", label: "Total Berat", type: "weight" },
-        { key: "bb", label: "Biaya Berangkat", type: "currency" },
-        { key: "totalHarga", label: "Total Harga", type: "currency" },
-        { key: "tanggalJalan", label: "Tanggal Jalan", type: "date" },
-        { key: "statusPengiriman", label: "Status Pengiriman" },
+        { key: "id", label: "ID" },
+        { key: "pengirimanId", label: "Pengiriman ID" },
+        { key: "nama", label: "Nama" },
+        { key: "kategori", label: "Kategori" },
+        { key: "nominal", label: "Nominal", type: "currency" },
+        { key: "keterangan", label: "Keterangan" },
         {
             key: "action",
             label: "Action",
@@ -293,12 +223,7 @@ export default function Pengiriman() {
                     >
                         <Trash2 size={16} />
                     </button>
-                    <button
-                        onClick={() => router.push(`/pengiriman/${row.id}`)}
-                        className="p-2 text-green-600 hover:bg-green-100 rounded"
-                    >
-                        <Package size={16} />
-                    </button>
+
                 </div>
             ),
         }
@@ -317,9 +242,9 @@ export default function Pengiriman() {
                 </div>
             )}
             <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
-                <div className="p-4 flex justify-end">
+                <div className="p-3 flex items-center justify-between">
 
-                    {/* <div className="hidden lg:block">
+                    <div className="hidden lg:block">
                         <form onSubmit={(e) => e.preventDefault()}>
                             <div className="relative">
                                 <span className="absolute -translate-y-1/2 left-4 top-1/2 pointer-events-none">
@@ -336,33 +261,28 @@ export default function Pengiriman() {
                                 />
                             </div>
                         </form>
-                    </div> */}
+                    </div>
 
                     <Button
                         size="sm"
                         variant="primary"
                         endIcon={<PlusCircleIcon />}
                         onClick={() => {
-                            setMode("generate");
+                            setMode("create");
 
                             setForm({
                                 id: 0,
-                                truckId: "",
-                                sopir1: "",
-                                sopir2: "",
-                                name: "",
-                                kapasitas: "",
-                                bb: "",
-                                totalHarga: "",
-                                totalBerat: "",
-                                tanggalJalan: "",
-                                statusPengiriman: "",
+                                pengirimanId: 0,
+                                nama: "",
+                                kategori: "",
+                                nominal: "",
+                                keterangan: "",
                             });
 
                             openModal();
                         }}
                     >
-                        Pembuatan Pengiriman Barang / Generate Pengiriman
+                        Pencatatan Pengeluaran
                     </Button>
 
                 </div>
@@ -372,7 +292,7 @@ export default function Pengiriman() {
                             loading ? (
                                 <p>Loading...</p>
                             ) : (
-                                <Table columns={columns} data={pengiriman} />
+                                <Table columns={columns} data={pengeluaran} />
                             )
                         }
                     </div>
@@ -384,20 +304,17 @@ export default function Pengiriman() {
                         onPageChange={(page) => setPage(page)}
                     />
                 </div>
-            </div>
+            </div >
 
-            <PengirimanModal
+            <PengeluaranModal
                 isOpen={isOpen}
                 onClose={closeModal}
                 form={form}
                 handleChange={handleChange}
                 handleSubmit={handleSubmit}
-                onGenerate={handleGenerate}
                 mode={mode}
-                users={user}
-                trucks={truck}
+                pengiriman={pengiriman}
             />
         </>
     )
-
 }

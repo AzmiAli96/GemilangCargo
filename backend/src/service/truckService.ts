@@ -1,5 +1,5 @@
 import { getPagination, getPagingData } from "../utils/pagination";
-import { allTruck, countTruck, createTruck, deleteTruck, TruckById, truckPaginate, updateTruck } from "../repository/truckRepo";
+import { allTruck, countTruck, createTruck, deleteTruck, getPlatNomor, TruckById, truckPaginate, updateTruck } from "../repository/truckRepo";
 import { truckData } from "../types/truck";
 
 export const getTruck = async () => {
@@ -24,6 +24,12 @@ export const getTruckById = async (id: number) => {
 }
 
 export const postTruck = async (item: truckData) => {
+    if(item.platNomor) {
+        const platsama = await getPlatNomor(item.platNomor);
+        if(platsama) {
+            throw new Error("Plat nomor sudah ada!");
+        }
+    }
     const truck = await createTruck(item);
     return truck;
 }

@@ -30,9 +30,8 @@ export interface hargaData {
 
 export interface truckData {
     id: number;
-    kode: string;
-    kapasitas: number;
-    bb: number;
+    platNomor: string;
+    kondisi: string;
     status: string;
 }
 
@@ -58,6 +57,8 @@ export interface pengirimanData {
     sopirIds: number[];
     truckId: number;
     name: string;
+    kapasotas: number;
+    bb: number;
     totalHarga: number;
     totalBerat: number;
     tanggalJalan: Date;
@@ -65,10 +66,19 @@ export interface pengirimanData {
     truck?: truckData;
 }
 
-export interface sopirData {
+export interface pengeluaranData {
     id: number;
-    deliverId: number;
-    userId: number;
+    pengirimanId: number;
+    nama: string;
+    kategori: string;
+    nominal: number;
+    keterangan: string;
+}
+
+export interface GenerateTruck {
+    truckId: number;
+    kapasitas: number;
+    bb: number;
 }
 
 export interface statusData {

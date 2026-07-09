@@ -18,7 +18,7 @@ import {
   UserCircleIcon,
 } from "../icons/index";
 import SidebarWidget from "./SidebarWidget";
-import { BookCheck, BookUser, CircleDollarSign, Package, PackagePlus, Truck, UserRoundKey, Users } from 'lucide-react';
+import { BookCheck, BookTextIcon, BookUser, CircleDollarSign, HandCoins, Package, PackagePlus, Truck, UserRoundKey, Users } from 'lucide-react';
 
 
 type NavItem = {
@@ -80,11 +80,16 @@ const navItems: NavItem[] = [
     name: "Pengiriman Barang",
     path: "/pengiriman"
   },
-  // {
-  //   icon: <BookUser />,
-  //   name: "Sopir & Kendaraan",
-  //   path: "/driver"
-  // },
+  {
+    icon: <HandCoins />,
+    name: "Pencatatan Pengeluaran",
+    path: "/pengeluaran"
+  },
+  {
+    icon: <BookTextIcon />,
+    name: "Laporan Bulanan",
+    path: "/laporan"
+  },
   // {
   //   icon: <BookCheck />,
   //   name: "Status Pengiriman",

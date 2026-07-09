@@ -80,8 +80,8 @@ export const deletepengirimanController = async (req: Request, res: Response) =>
 
 export const generatePengirimanController = async (req: Request, res: Response) => {
   try {
-
-    const result = await generatePengiriman();
+    const {truckList} = req.body;
+    const result = await generatePengiriman(truckList);
 
     res.status(200).json({
       message: "Generate pengiriman berhasil",

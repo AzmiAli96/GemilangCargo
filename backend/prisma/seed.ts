@@ -63,10 +63,18 @@ async function main() {
     //             roleId: sopirRole!.id,
     //         },
     //         {
+    //             name: "sopir 2",
+    //             alamat: "Bukittinggi",
+    //             roleId: sopirRole!.id,
+    //         },
+    //         {
     //             name: "Pelanggan 1",
     //             alamat: "Padang",
-    //             email: "customer@gmail.com",
-    //             password: hashedPassword,
+    //             roleId: pelangganRole!.id,
+    //         },
+    //         {
+    //             name: "Pelanggan 2",
+    //             alamat: "Bukittinggi",
     //             roleId: pelangganRole!.id,
     //         },
     //     ],
@@ -154,12 +162,16 @@ async function main() {
 
     // console.log("Price seeded");
 
+    // // ====================
+    // // SEED [PESANAN]
+    // // ====================
+
     await prisma.pesanan.createMany({
         data: [
             {
-                userId: 4,
+                userId: 6,
                 hargaId: 2,
-                noSpb: "0071",
+                noSpb: "0061",
                 koli: 1,
                 berat: 20,
                 tujuan: "Terminal",
@@ -170,7 +182,7 @@ async function main() {
             {
                 userId: 5,
                 hargaId: 1,
-                noSpb: "0072",
+                noSpb: "0062",
                 koli: 2,
                 berat: 40,
                 tujuan: "Contoh",
@@ -179,9 +191,9 @@ async function main() {
                 prioritas: "Prioritas Rendah",
             },
             {
-                userId: 4,
+                userId: 6,
                 hargaId: 3,
-                noSpb: "0073",
+                noSpb: "0063",
                 koli: 4,
                 berat: 80,
                 tujuan: "Contoh",
@@ -192,7 +204,7 @@ async function main() {
             {
                 userId: 5,
                 hargaId: 2,
-                noSpb: "0074",
+                noSpb: "0064",
                 koli: 8,
                 berat: 160,
                 tujuan: "Contoh",
@@ -201,9 +213,9 @@ async function main() {
                 prioritas: "Prioritas Rendah",
             },
             {
-                userId: 4,
+                userId: 6,
                 hargaId: 1,
-                noSpb: "0075",
+                noSpb: "0065",
                 koli: 8,
                 berat: 320,
                 tujuan: "Contoh",
@@ -214,7 +226,7 @@ async function main() {
             {
                 userId: 5,
                 hargaId: 3,
-                noSpb: "0076",
+                noSpb: "0066",
                 koli: 16,
                 berat: 640,
                 tujuan: "Contoh",
@@ -223,9 +235,9 @@ async function main() {
                 prioritas: "Prioritas Sedang",
             },
             {
-                userId: 4,
+                userId: 6,
                 hargaId: 1,
-                noSpb: "0077",
+                noSpb: "0067",
                 koli: 32,
                 berat: 1280,
                 tujuan: "Contoh",
@@ -236,7 +248,7 @@ async function main() {
             {
                 userId: 5,
                 hargaId: 2,
-                noSpb: "0078",
+                noSpb: "0068",
                 koli: 64,
                 berat: 2560,
                 tujuan: "Contoh",
@@ -245,9 +257,9 @@ async function main() {
                 prioritas: "Prioritas Tinggi",
             },
             {
-                userId: 4,
+                userId: 6,
                 hargaId: 3,
-                noSpb: "0079",
+                noSpb: "0069",
                 koli: 128,
                 berat: 3000,
                 tujuan: "Contoh",
@@ -258,7 +270,7 @@ async function main() {
             {
                 userId: 5,
                 hargaId: 3,
-                noSpb: "0080",
+                noSpb: "0070",
                 koli: 1,
                 berat: 88,
                 tujuan: "contoh",
@@ -267,9 +279,9 @@ async function main() {
                 prioritas: "Prioritas Rendah",
             },
             {
-                userId: 4,
+                userId: 6,
                 hargaId: 1,
-                noSpb: "0081",
+                noSpb: "0071",
                 koli: 1,
                 berat: 58,
                 tujuan: "contoh",
@@ -280,7 +292,7 @@ async function main() {
             {
                 userId: 5,
                 hargaId: 2,
-                noSpb: "0082",
+                noSpb: "0072",
                 koli: 1,
                 berat: 28,
                 tujuan: "contoh",
@@ -289,9 +301,9 @@ async function main() {
                 prioritas: "Prioritas Rendah",
             },
             {
-                userId: 4,
+                userId: 6,
                 hargaId: 1,
-                noSpb: "0083",
+                noSpb: "0073",
                 koli: 1,
                 berat: 30,
                 tujuan: "contoh",
@@ -300,9 +312,9 @@ async function main() {
                 prioritas: "Prioritas Rendah",
             },
             {
-                userId: 4,
+                userId: 6,
                 hargaId: 3,
-                noSpb: "0084",
+                noSpb: "0074",
                 koli: 1,
                 berat: 18,
                 tujuan: "contoh",
@@ -313,7 +325,7 @@ async function main() {
             {
                 userId: 5,
                 hargaId: 2,
-                noSpb: "0085",
+                noSpb: "0075",
                 koli: 1,
                 berat: 46,
                 tujuan: "contoh",
@@ -322,9 +334,9 @@ async function main() {
                 prioritas: "Prioritas Rendah",
             },
             {
-                userId: 4,
+                userId: 6,
                 hargaId: 2,
-                noSpb: "0086",
+                noSpb: "0076",
                 koli: 1,
                 berat: 24,
                 tujuan: "contoh",
@@ -335,7 +347,7 @@ async function main() {
             {
                 userId: 5,
                 hargaId: 1,
-                noSpb: "0087",
+                noSpb: "0077",
                 koli: 1,
                 berat: 68,
                 tujuan: "contoh",
@@ -344,9 +356,9 @@ async function main() {
                 prioritas: "Prioritas Rendah",
             },
             {
-                userId: 4,
+                userId: 6,
                 hargaId: 3,
-                noSpb: "0088",
+                noSpb: "0078",
                 koli: 1,
                 berat: 15,
                 tujuan: "contoh",
@@ -357,7 +369,7 @@ async function main() {
             {
                 userId: 5,
                 hargaId: 1,
-                noSpb: "0089",
+                noSpb: "0079",
                 koli: 1,
                 berat: 22,
                 tujuan: "contoh",
@@ -366,9 +378,9 @@ async function main() {
                 prioritas: "Prioritas Rendah",
             },
             {
-                userId: 4,
+                userId: 6,
                 hargaId: 2,
-                noSpb: "0090",
+                noSpb: "0080",
                 koli: 5,
                 berat: 65,
                 tujuan: "contoh",
@@ -379,7 +391,7 @@ async function main() {
             {
                 userId: 5,
                 hargaId: 3,
-                noSpb: "0091",
+                noSpb: "0081",
                 koli: 11,
                 berat: 143,
                 tujuan: "contoh",
@@ -388,9 +400,9 @@ async function main() {
                 prioritas: "Prioritas Rendah",
             },
             {
-                userId: 4,
+                userId: 6,
                 hargaId: 1,
-                noSpb: "0092",
+                noSpb: "0082",
                 koli: 13,
                 berat: 169,
                 tujuan: "contoh",
@@ -401,7 +413,7 @@ async function main() {
             {
                 userId: 5,
                 hargaId: 2,
-                noSpb: "0093",
+                noSpb: "0083",
                 koli: 6,
                 berat: 78,
                 tujuan: "contoh",
@@ -410,9 +422,9 @@ async function main() {
                 prioritas: "Prioritas Rendah",
             },
             {
-                userId: 4,
+                userId: 6,
                 hargaId: 3,
-                noSpb: "0094",
+                noSpb: "0084",
                 koli: 4,
                 berat: 52,
                 tujuan: "contoh",
@@ -423,7 +435,7 @@ async function main() {
             {
                 userId: 5,
                 hargaId: 1,
-                noSpb: "0095",
+                noSpb: "0085",
                 koli: 10,
                 berat: 130,
                 tujuan: "contoh",
@@ -434,7 +446,7 @@ async function main() {
             {
                 userId: 5,
                 hargaId: 3,
-                noSpb: "0096",
+                noSpb: "0086",
                 koli: 3,
                 berat: 384,
                 tujuan: "contoh",
@@ -443,9 +455,9 @@ async function main() {
                 prioritas: "Prioritas Sedang",
             },
             {
-                userId: 4,
+                userId: 6,
                 hargaId: 2,
-                noSpb: "0097",
+                noSpb: "0087",
                 koli: 27,
                 berat: 507,
                 tujuan: "contoh",
@@ -456,7 +468,7 @@ async function main() {
             {
                 userId: 5,
                 hargaId: 1,
-                noSpb: "0098",
+                noSpb: "0088",
                 koli: 1,
                 berat: 40,
                 tujuan: "contoh",
@@ -465,9 +477,9 @@ async function main() {
                 prioritas: "Prioritas Rendah",
             },
             {
-                userId: 4,
+                userId: 6,
                 hargaId: 3,
-                noSpb: "0099",
+                noSpb: "0089",
                 koli: 1,
                 berat: 128,
                 tujuan: "contoh",
@@ -476,9 +488,9 @@ async function main() {
                 prioritas: "Prioritas Rendah",
             },
             {
-                userId: 4,
+                userId: 6,
                 hargaId: 2,
-                noSpb: "0100",
+                noSpb: "0090",
                 koli: 1,
                 berat: 141,
                 tujuan: "contoh",
@@ -486,6 +498,325 @@ async function main() {
                 total: 296100,
                 prioritas: "Prioritas Rendah",
             },
+            {
+                "userId": 5,
+                "hargaId": 1,
+                "noSpb": "0091",
+                "koli": 1,
+                "berat": 10,
+                "tujuan": "contoh",
+                "statusPay": "Belum Lunas",
+                "total": 25000,
+                "prioritas": "Prioritas Rendah"
+            },
+            {
+                "userId": 6,
+                "hargaId": 3,
+                "noSpb": "0092",
+                "koli": 1,
+                "berat": 58,
+                "tujuan": "contoh",
+                "statusPay": "Belum Lunas",
+                "total": 133400,
+                "prioritas": "Prioritas Rendah"
+            },
+            {
+                "userId": 5,
+                "hargaId": 2,
+                "noSpb": "0093",
+                "koli": 20,
+                "berat": 350,
+                "tujuan": "contoh",
+                "statusPay": "Belum Lunas",
+                "total": 735000,
+                "prioritas": "Prioritas Sedang"
+            },
+            {
+                "userId": 6,
+                "hargaId": 1,
+                "noSpb": "0094",
+                "koli": 1,
+                "berat": 66,
+                "tujuan": "contoh",
+                "statusPay": "Belum Lunas",
+                "total": 165000,
+                "prioritas": "Prioritas Rendah"
+            },
+            {
+                "userId": 5,
+                "hargaId": 3,
+                "noSpb": "0095",
+                "koli": 1,
+                "berat": 68,
+                "tujuan": "contoh",
+                "statusPay": "Belum Lunas",
+                "total": 156400,
+                "prioritas": "Prioritas Rendah"
+            },
+            {
+                "userId": 5,
+                "hargaId": 2,
+                "noSpb": "0096",
+                "koli": 18,
+                "berat": 450,
+                "tujuan": "contoh",
+                "statusPay": "Belum Lunas",
+                "total": 945000,
+                "prioritas": "Prioritas Sedang"
+            },
+            {
+                "userId": 6,
+                "hargaId": 1,
+                "noSpb": "0097",
+                "koli": 6,
+                "berat": 150,
+                "tujuan": "contoh",
+                "statusPay": "Belum Lunas",
+                "total": 375000,
+                "prioritas": "Prioritas Rendah"
+            },
+            {
+                "userId": 5,
+                "hargaId": 3,
+                "noSpb": "0098",
+                "koli": 1,
+                "berat": 20,
+                "tujuan": "contoh",
+                "statusPay": "Belum Lunas",
+                "total": 46000,
+                "prioritas": "Prioritas Rendah"
+            },
+            {
+                "userId": 6,
+                "hargaId": 2,
+                "noSpb": "0099",
+                "koli": 1,
+                "berat": 16,
+                "tujuan": "contoh",
+                "statusPay": "Belum Lunas",
+                "total": 33600,
+                "prioritas": "Prioritas Rendah"
+            },
+            {
+                "userId": 6,
+                "hargaId": 1,
+                "noSpb": "0100",
+                "koli": 1,
+                "berat": 85,
+                "tujuan": "contoh",
+                "statusPay": "Belum Lunas",
+                "total": 212500,
+                "prioritas": "Prioritas Rendah"
+            },
+            {
+                "userId": 5,
+                "hargaId": 3,
+                "noSpb": "0101",
+                "koli": 2,
+                "berat": 90,
+                "tujuan": "contoh",
+                "statusPay": "Belum Lunas",
+                "total": 207000,
+                "prioritas": "Prioritas Rendah"
+            },
+            {
+                "userId": 6,
+                "hargaId": 2,
+                "noSpb": "0102",
+                "koli": 1,
+                "berat": 86,
+                "tujuan": "contoh",
+                "statusPay": "Belum Lunas",
+                "total": 180600,
+                "prioritas": "Prioritas Rendah"
+            },
+            {
+                "userId": 5,
+                "hargaId": 1,
+                "noSpb": "0103",
+                "koli": 1,
+                "berat": 52,
+                "tujuan": "contoh",
+                "statusPay": "Belum Lunas",
+                "total": 130000,
+                "prioritas": "Prioritas Rendah"
+            },
+            {
+                "userId": 6,
+                "hargaId": 3,
+                "noSpb": "0104",
+                "koli": 12,
+                "berat": 149,
+                "tujuan": "contoh",
+                "statusPay": "Belum Lunas",
+                "total": 342700,
+                "prioritas": "Prioritas Rendah"
+            },
+            {
+                "userId": 5,
+                "hargaId": 2,
+                "noSpb": "0105",
+                "koli": 1,
+                "berat": 88,
+                "tujuan": "contoh",
+                "statusPay": "Belum Lunas",
+                "total": 184800,
+                "prioritas": "Prioritas Rendah"
+            },
+            {
+                "userId": 6,
+                "hargaId": 1,
+                "noSpb": "0106",
+                "koli": 1,
+                "berat": 90,
+                "tujuan": "contoh",
+                "statusPay": "Belum Lunas",
+                "total": 225000,
+                "prioritas": "Prioritas Rendah"
+            },
+            {
+                "userId": 5,
+                "hargaId": 3,
+                "noSpb": "0107",
+                "koli": 2,
+                "berat": 160,
+                "tujuan": "contoh",
+                "statusPay": "Belum Lunas",
+                "total": 368000,
+                "prioritas": "Prioritas Rendah"
+            },
+            {
+                "userId": 6,
+                "hargaId": 2,
+                "noSpb": "0108",
+                "koli": 2,
+                "berat": 165,
+                "tujuan": "contoh",
+                "statusPay": "Belum Lunas",
+                "total": 346500,
+                "prioritas": "Prioritas Rendah"
+            },
+            {
+                "userId": 5,
+                "hargaId": 1,
+                "noSpb": "0109",
+                "koli": 2,
+                "berat": 180,
+                "tujuan": "contoh",
+                "statusPay": "Belum Lunas",
+                "total": 450000,
+                "prioritas": "Prioritas Rendah"
+            },
+            {
+                "userId": 6,
+                "hargaId": 3,
+                "noSpb": "0110",
+                "koli": 1,
+                "berat": 61,
+                "tujuan": "contoh",
+                "statusPay": "Belum Lunas",
+                "total": 140300,
+                "prioritas": "Prioritas Rendah"
+            },
+            {
+                "userId": 5,
+                "hargaId": 2,
+                "noSpb": "0111",
+                "koli": 1,
+                "berat": 42,
+                "tujuan": "contoh",
+                "statusPay": "Belum Lunas",
+                "total": 88200,
+                "prioritas": "Prioritas Rendah"
+            },
+            {
+                "userId": 6,
+                "hargaId": 1,
+                "noSpb": "0112",
+                "koli": 1,
+                "berat": 68,
+                "tujuan": "contoh",
+                "statusPay": "Belum Lunas",
+                "total": 170000,
+                "prioritas": "Prioritas Rendah"
+            },
+            {
+                "userId": 5,
+                "hargaId": 3,
+                "noSpb": "0113",
+                "koli": 1,
+                "berat": 64,
+                "tujuan": "contoh",
+                "statusPay": "Belum Lunas",
+                "total": 147200,
+                "prioritas": "Prioritas Rendah"
+            },
+            {
+                "userId": 6,
+                "hargaId": 2,
+                "noSpb": "0114",
+                "koli": 1,
+                "berat": 76,
+                "tujuan": "contoh",
+                "statusPay": "Belum Lunas",
+                "total": 159600,
+                "prioritas": "Prioritas Rendah"
+            },
+            {
+                "userId": 5,
+                "hargaId": 1,
+                "noSpb": "0115",
+                "koli": 1,
+                "berat": 52,
+                "tujuan": "contoh",
+                "statusPay": "Belum Lunas",
+                "total": 130000,
+                "prioritas": "Prioritas Rendah"
+            },
+            {
+                "userId": 6,
+                "hargaId": 3,
+                "noSpb": "0116",
+                "koli": 1,
+                "berat": 54,
+                "tujuan": "contoh",
+                "statusPay": "Belum Lunas",
+                "total": 124200,
+                "prioritas": "Prioritas Rendah"
+            },
+            {
+                "userId": 5,
+                "hargaId": 2,
+                "noSpb": "0117",
+                "koli": 1,
+                "berat": 56,
+                "tujuan": "contoh",
+                "statusPay": "Belum Lunas",
+                "total": 117600,
+                "prioritas": "Prioritas Rendah"
+            },
+            {
+                "userId": 6,
+                "hargaId": 1,
+                "noSpb": "0118",
+                "koli": 1,
+                "berat": 90,
+                "tujuan": "contoh",
+                "statusPay": "Belum Lunas",
+                "total": 225000,
+                "prioritas": "Prioritas Rendah"
+            },
+            {
+                "userId": 5,
+                "hargaId": 3,
+                "noSpb": "0119",
+                "koli": 1,
+                "berat": 24,
+                "tujuan": "contoh",
+                "statusPay": "Belum Lunas",
+                "total": 55200,
+                "prioritas": "Prioritas Rendah"
+            }
         ],
         skipDuplicates: true,
     });

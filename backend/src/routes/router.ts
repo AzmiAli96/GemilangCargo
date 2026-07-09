@@ -8,6 +8,8 @@ import { deleteSopirController, getDeliveryPaginateController, getSopirControlle
 import { deleteStatusController, getStatusByIdController, getStatusController, getStatusPaginateController, postStatusController, putStatusController } from "../controller/deliverStatusController";
 import { getRoleController } from "../controller/RoleController";
 import { deleteTruckController, getTruckController, getTruckPaginateController, postTruckController, putTruckController } from "../controller/truckController";
+import { deletePengeluaranController, getPengeluaranByIdController, getPengeluaranController, getPengeluaranPaginateController, postPengeluaranController, putPengeluaranController } from "../controller/pengeluaranController";
+import { exportLaporanBulananController, getLaporanBulananController, getLaporanPaginateController, getLaporanRingkasanBulananController } from "../controller/laporanController";
 
 const router = express.Router();
 
@@ -40,27 +42,12 @@ router.put("/pesanan/:id", putpesananController);
 router.delete("/pesanan/:id", deletepesananController);
 router.post("/pesanan/import", upload.single("file"), importpesananController);
 
-// ================= DELIVER Sopir =================
-// router.get("/sopir", getSopirController);
-// router.get("/sopirpagination", getDeliveryPaginateController);
-// router.post("/sopir", postSopirController);
-// router.put("/sopir/:id", putSopirController);
-// router.delete("/sopir/:id", deleteSopirController);
-
 // ================= DELIVER Truck =================
 router.get("/truck", getTruckController);
 router.get("/truckpagination", getTruckPaginateController);
 router.post("/truck", postTruckController);
 router.put("/truck/:id", putTruckController);
 router.delete("/truck/:id", deleteTruckController);
-
-// ================= DELIVER STATUS =================
-// router.get("/pengiriman/status", getStatusController);
-// router.get("/pengiriman/statuspaginate", getStatusPaginateController);
-// router.get("/pengiriman/status/:id", getStatusByIdController);
-// router.post("/pengiriman/status", postStatusController);
-// router.put("/pengiriman/status/:id", putStatusController);
-// router.delete("/pengiriman/status/:id", deleteStatusController);
 
 // ================= DELIVER =================
 router.get("/pengiriman", getpengirimanController);
@@ -72,7 +59,34 @@ router.delete("/pengiriman/:id", deletepengirimanController);
 router.post("/pengiriman/generate", generatePengirimanController);
 // router.get("/pengiriman-summary", getpengirimanSummaryController);
 
+// ================= DELIVER PENGELUARAN =================
+router.get("/pengeluaran", getPengeluaranController);
+router.get("/pengeluaranpaginate", getPengeluaranPaginateController);
+router.get("/pengeluaran/:id", getPengeluaranByIdController);
+router.post("/pengeluaran", postPengeluaranController);
+router.put("/pengeluaran/:id", putPengeluaranController);
+router.delete("/pengeluaran/:id", deletePengeluaranController);
 
+// ================= DELIVER Sopir =================
+router.get("/laporan/bulanan", getLaporanBulananController);
+router.get("/laporan/paginate", getLaporanPaginateController);
+router.get("/laporan/export-bulanan", exportLaporanBulananController);
+router.get("/laporan/ringkasan-bulanan", getLaporanRingkasanBulananController);
+
+// ================= DELIVER Sopir =================
+// router.get("/sopir", getSopirController);
+// router.get("/sopirpagination", getDeliveryPaginateController);
+// router.post("/sopir", postSopirController);
+// router.put("/sopir/:id", putSopirController);
+// router.delete("/sopir/:id", deleteSopirController);
+
+// ================= DELIVER STATUS =================
+// router.get("/pengiriman/status", getStatusController);
+// router.get("/pengiriman/statuspaginate", getStatusPaginateController);
+// router.get("/pengiriman/status/:id", getStatusByIdController);
+// router.post("/pengiriman/status", postStatusController);
+// router.put("/pengiriman/status/:id", putStatusController);
+// router.delete("/pengiriman/status/:id", deleteStatusController);
 
 
 

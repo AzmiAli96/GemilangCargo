@@ -1,7 +1,6 @@
 export interface truckData {
     id: number;
-    kode: string;
-    kapasitas: number;
-    bb: number;
+    platNomor: string;
+    kondisi: string;
     status: string;
 }

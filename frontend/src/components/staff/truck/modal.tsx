@@ -1,6 +1,8 @@
 import Input from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
+import Select from "@/components/form/Select";
 import { Modal } from "@/components/ui/modal";
+import { ChevronDownIcon } from "lucide-react";
 import { useState } from "react";
 
 type Props = {
@@ -21,37 +23,39 @@ export default function TruckModal({
     mode,
 }: Props) {
     const [errors, setErrors] = useState({
-            kode: "",
-            kapasitas: "",
-            bb: "",
-        });
-    
-        const onSubmit = () => {
-            const newErrors = {
-                kode: "",
-                kapasitas: "",
-                bb: "",
-            };
-    
-            let valid = true;
-    
-            if (!form.kode?.trim()) {
-                newErrors.kode = "kode wajib diisi";
-                valid = false;
-            }
-            if (!form.kapasitas?.trim()) {
-                newErrors.kapasitas = "kapasitas wajib diisi";
-                valid = false;
-            }
-            if (!form.bb?.trim()) {
-                newErrors.bb = "Biaya Berangkat wajib diisi";
-                valid = false;
-            }
-    
-            setErrors(newErrors);
-            if (!valid) return;
-            handleSubmit();
+        platNomor: "",
+    });
+
+    const onSubmit = () => {
+        const newErrors = {
+            platNomor: "",
         };
+
+        let valid = true;
+
+        if (!form.platNomor?.trim()) {
+            newErrors.platNomor = "platNomor wajib diisi";
+            valid = false;
+        }
+
+        setErrors(newErrors);
+        if (!valid) return;
+        handleSubmit();
+    };
+
+    const optionsStatus = [
+        { value: "AKTIF", label: "Aktif" },
+        { value: "SERVIS", label: "Service" },
+        { value: "RUSAK", label: "Rusak" },
+        { value: "NON AKTIF", label: "Non Aktif" },
+    ];
+
+    const handleStatusChange = (value: string) => {
+        handleChange({
+            target: { name: "status", value: value },
+        });
+    };
+
     return (
         <Modal
             isOpen={isOpen}
@@ -69,54 +73,46 @@ export default function TruckModal({
                 </div>
                 <div className="space-y-4 mt-6">
                     <div>
-                        <Label>Kode</Label>
-                        <Input name="kode"
-                            value={form.kode}
+                        <Label>Plat Nomor Truck *</Label>
+                        <Input name="platNomor"
+                            value={form.platNomor}
                             onChange={(e) => {
                                 handleChange(e);
                                 setErrors((prev) => ({
                                     ...prev,
-                                    kode: "",
+                                    platNomor: "",
                                 }));
                             }}
                             type="text"
-                            error={!!errors.kode}
-                            hint={errors.kode}
+                            error={!!errors.platNomor}
+                            hint={errors.platNomor}
                         />
                     </div>
                     <div>
-                        <Label>Kapasitas</Label>
-                        <Input name="kapasitas"
-                            value={form.kapasitas}
-                            onChange={(e) => {
-                                handleChange(e);
-                                setErrors((prev) => ({
-                                    ...prev,
-                                    kapasitas: "",
-                                }));
-                            }}
-                            type="number"
-                            error={!!errors.kapasitas}
-                            hint={errors.kapasitas}
+                        <Label>Kondisi</Label>
+                        <Input name="kondisi"
+                            value={form.kondisi}
+                            onChange={handleChange}
+                            type="text"
                         />
                     </div>
-                    <div>
-                        <Label>Biaya Berangkat</Label>
-                        <Input name="bb"
-                            value={form.bb}
-                            onChange={(e) => {
-                                handleChange(e);
-                                setErrors((prev) => ({
-                                    ...prev,
-                                    bb: "",
-                                }));
-                            }}
-                            placeholder="ex: 2000000"
-                            type="number"
-                            error={!!errors.bb}
-                            hint={errors.bb}
-                        />
-                    </div>
+                    {mode === "edit" && (
+                        <div>
+                            <Label>Status Truck</Label>
+                            <div className="relative">
+                                <Select
+                                    options={optionsStatus}
+                                    value={String(form.status) || ""}
+                                    placeholder="Select Status Truck"
+                                    onChange={handleStatusChange}
+                                    className="dark:bg-dark-900"
+                                />
+                                <span className="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
+                                    <ChevronDownIcon />
+                                </span>
+                            </div>
+                        </div>
+                    )}
 
                     <div className="flex items-center gap-3 mt-6 modal-footer sm:justify-end">
                         <button

@@ -2,8 +2,10 @@ import DatePicker from "@/components/form/date-picker";
 import Input from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
 import Select from "@/components/form/Select";
+import Button from "@/components/ui/button/Button";
 import { Modal } from "@/components/ui/modal";
-import { ChevronDownIcon } from "lucide-react";
+import { GenerateTruck, truckData } from "@/types";
+import { ChevronDownIcon, PlusIcon, TrashIcon } from "lucide-react";
 import { useState } from "react";
 
 type Props = {
@@ -12,6 +14,7 @@ type Props = {
     form: any;
     handleChange: (e: any) => void;
     handleSubmit: () => void;
+    onGenerate: (trucks: GenerateTruck[]) => void;
     mode: "generate" | "edit";
     users: any[];
     trucks: any[];
@@ -23,15 +26,73 @@ export default function PengirimanModal({
     form,
     handleChange,
     handleSubmit,
+    onGenerate,
     mode,
     users,
     trucks,
 }: Props) {
+    const [selectedTruck, setSelectedTruck] = useState<GenerateTruck[]>([]);
+    const [generateError, setGenerateError] = useState("");
+
+    const addTruck = () => {
+        setSelectedTruck(prev => [
+            ...prev,
+            {
+                truckId: 0,
+                kapasitas: 0,
+                bb: 0
+            }
+        ]);
+    };
+
+    const removeTruck = (index: number) => {
+        setSelectedTruck(prev => prev.filter((_, i) => i !== index)
+        );
+    };
+
+    const truckOptions  = (currentIndex: number) => {
+        return trucks.filter((truck) => {
+            return !selectedTruck.some((selected, index) => index !== currentIndex && selected.truckId === truck.id);
+        }).map((truck) => ({
+            value: String(truck.id),
+            label: truck.platNomor,
+        })) || [];
+    };
+
+    const updateTruck = (index: number, field: keyof GenerateTruck, value: any) => {
+        setSelectedTruck(prev => {
+            const data = [...prev];
+            data[index] = {
+                ...data[index],
+                [field]: value
+            };
+            return data;
+        });
+
+    };
+
     const [errors, setErrors] = useState({
         sopir1: "",
     });
 
     const onSubmit = () => {
+        if (mode === "generate") {
+            if (selectedTruck.length === 0) {
+                setGenerateError("Tambahkan minimal 1 truck");
+                return;
+            }
+            const invalid = selectedTruck.some(
+                t => !t.truckId || t.kapasitas <= 0 || t.bb <= 0
+            );
+            if (invalid) {
+                setGenerateError("Lengkapi truck, kapasitas, dan bb untuk semua baris");
+                return;
+            }
+            setGenerateError("");
+            onGenerate(selectedTruck);
+            return;
+        }
+
         const newErrors = {
             sopir1: "",
         };
@@ -68,6 +129,7 @@ export default function PengirimanModal({
     };
 
     const optionsPengiriman = [
+        { value: "PENDING", label: "Menunggu barang penuh" },
         { value: "SIAP BERANGKAT", label: "Siap Berangkat" },
         { value: "DALAM PERJALANAN", label: "Dalam Perjalanan" },
         { value: "SELESAI", label: "Selesai" },
@@ -79,12 +141,20 @@ export default function PengirimanModal({
         });
     };
 
-    const availableTrucks =
-        trucks?.filter(
-            (truck) =>
-                truck.status === "BARANG MASUK" || truck.status === "PENDING"
-        ) || [];
-    // console.log("data trucks modal:", trucks);
+
+
+    const handleTruckChange = (value: string) => {
+        handleChange({
+            target: { name: "truckId", value: value },
+        });
+    }
+
+    // const availableTrucks =
+    //     trucks?.filter(
+    //         (truck) =>
+    //             truck.status === "BARANG MASUK" || truck.status === "PENDING"
+    //     ) || [];
+    console.log("data trucks modal:", trucks);
     // console.log("available:", availableTrucks);
 
     return (
@@ -145,50 +215,80 @@ export default function PengirimanModal({
                             </>
                         ) : (
                             <>
-                                <div className="rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
-                                    <p className="mb-3">
-                                        Sistem akan melakukan generate pengiriman berdasarkan:
-                                    </p>
-
-                                    <ul className="list-disc pl-5 text-sm">
-                                        <li>Kapasitas truck</li>
-                                        <li>Biaya berangkat (BB)</li>
-                                        <li>Prioritas pesanan</li>
-                                        <li>Status pesanan yang dapat diproses</li>
-                                    </ul>
+                                <div className="flex items-center justify-between">
+                                    <Label className="mb-0">Daftar Truck</Label>
+                                    <button
+                                        type="button"
+                                        onClick={addTruck}
+                                        className="inline-flex items-center gap-1 text-sm font-medium text-brand-500 hover:text-brand-600"
+                                    >
+                                        <PlusIcon className="w-4 h-4" />
+                                        Tambah Truck
+                                    </button>
                                 </div>
 
-                                <div className="mt-4 space-y-3">
-                                    {availableTrucks.map((truck) => (
+                                {selectedTruck.length === 0 && (
+                                    <div className="rounded-lg border border-dashed p-6 text-center text-sm text-gray-400 dark:border-gray-700">
+                                        Belum ada truck ditambahkan. Klik "Tambah Truck" untuk mulai.
+                                    </div>
+                                )}
+
+                                <div className="space-y-3">
+                                    {selectedTruck.map((item, index) => (
                                         <div
-                                            key={truck.id}
-                                            className="rounded-lg border p-3"
+                                            key={index}
+                                            className="rounded-lg border p-4 dark:border-gray-700"
                                         >
-                                            <p>
-                                                <strong>{truck.kode}</strong>
-                                            </p>
+                                            <div className="flex items-center justify-between mb-3">
+                                                <span className="text-sm font-semibold text-gray-800 dark:text-white/90">
+                                                    Truck {index + 1}
+                                                </span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeTruck(index)}
+                                                    className="text-gray-400 hover:text-error-500 transition-colors"
+                                                    aria-label="Hapus truck"
+                                                >
+                                                    <TrashIcon className="w-4 h-4" />
+                                                </button>
+                                            </div>
 
-                                            <p>
-                                                Kapasitas:
-                                                {" "}
-                                                {Number(truck.kapasitas).toLocaleString("id-ID")} KG
-                                            </p>
+                                            <Select
+                                                options={truckOptions(index)}
+                                                value={String(item.truckId || "")}
+                                                placeholder="Pilih truck"
+                                                onChange={(value) => updateTruck(index, "truckId", Number(value))}
+                                            />
 
-                                            <p>
-                                                BB:
-                                                {" "}
-                                                Rp {Number(truck.bb).toLocaleString("id-ID")}
-                                            </p>
-                                            <p>
-                                                Status: {truck.status}
-                                            </p>
+                                            <div className="grid grid-cols-2 gap-3 mt-3">
+                                                <div>
+                                                    <Label className="text-xs text-gray-500">Kapasitas (KG)</Label>
+                                                    <Input
+                                                        type="number"
+                                                        value={item.kapasitas}
+                                                        onChange={(e) =>
+                                                            updateTruck(index, "kapasitas", Number(e.target.value))
+                                                        }
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label className="text-xs text-gray-500">BB (Rp)</Label>
+                                                    <Input
+                                                        type="number"
+                                                        value={item.bb}
+                                                        onChange={(e) =>
+                                                            updateTruck(index, "bb", Number(e.target.value))
+                                                        }
+                                                    />
+                                                </div>
+                                            </div>
                                         </div>
                                     ))}
-
-                                    {availableTrucks.length === 0 && (
-                                        <p>Tidak ada truck yang tersedia.</p>
-                                    )}
                                 </div>
+
+                                {generateError && (
+                                    <p className="text-sm text-error-500">{generateError}</p>
+                                )}
                             </>
                         )}
                     </div>
@@ -201,7 +301,7 @@ export default function PengirimanModal({
                         </button>
 
                         <button
-                            onClick={handleSubmit}
+                            onClick={onSubmit}
                             className="btn btn-success btn-update-event flex w-full justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 sm:w-auto"
                         >
                             {mode === "edit"

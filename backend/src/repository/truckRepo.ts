@@ -30,10 +30,8 @@ export const TruckById = async (id: number) => {
 export const createTruck = async (item: truckData) => {
     const truck = await prisma.truck.create({
         data: {
-            kode: item.kode,
-            kapasitas: item.kapasitas,
-            bb: item.bb,
-            status: "BARANG MASUK",
+            platNomor: item.platNomor,
+            kondisi: item.kondisi
         }
     })
     return truck;
@@ -43,9 +41,8 @@ export const updateTruck = async (id: number, item: truckData) => {
     const truck = await prisma.truck.update({
         where: { id: id },
         data: {
-            kode: item.kode,
-            kapasitas: item.kapasitas,
-            bb: item.bb,
+            platNomor: item.platNomor,
+            kondisi: item.kondisi,
             status: item.status,
         },
     });
@@ -55,5 +52,11 @@ export const updateTruck = async (id: number, item: truckData) => {
 export const deleteTruck = async (id: number) => {
     await prisma.truck.delete({
         where: { id }
+    });
+}
+
+export const getPlatNomor = async (platNomor: string) => {
+    return await prisma.truck.findUnique({
+        where: { platNomor }
     });
 }

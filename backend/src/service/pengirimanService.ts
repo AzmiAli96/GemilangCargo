@@ -1,5 +1,5 @@
-import { pengirimanData } from "../types/pengiriman";
-import { countpengiriman, createpengiriman, deletepengiriman, getpengiriman, getpengirimanpaginate, updatepengiriman, pengirimanById, getTruckAktif, getPesananPending, getTruckGenerate, updatePengirimanGenerate, createPengirimanGenerate, updatePesananPengiriman, updateTruckStatus, getpengirimanPesanan } from "../repository/pengirimanRepo"
+import { GenerateTruckDto, pengirimanData } from "../types/pengiriman";
+import { countpengiriman, createpengiriman, deletepengiriman, getpengiriman, getpengirimanpaginate, updatepengiriman, pengirimanById, getTruckAktif, getPesananPending, getTruckGenerate, updatePengirimanGenerate, createPengirimanGenerate, updatePesananPengiriman, updateTruckStatus, getpengirimanPesanan, getPengirimanPending } from "../repository/pengirimanRepo"
 import { getPagination, getPagingData } from "../utils/pagination";
 import { groupPesananByPriority, isiTruck, sortPesanan } from "../utils/greedy";
 import { pesananData } from "../types/pesanan";
@@ -130,29 +130,36 @@ export const deletepengirimanId = async (id: number) => {
 //     return await getpengirimanWithSummary();
 // };
 
-export const generatePengiriman = async () => {
-    const trucks = await getTruckGenerate();
-    const sortedTrucks = [...trucks].sort((a, b) => {
+export const generatePengiriman = async (truckList: GenerateTruckDto[]) => {
+    const pendingPengiriman = await getPengirimanPending();
 
-        if (
-            a.status === "PENDING" &&
-            b.status !== "PENDING"
-        ) {
-            return -1;
-        }
+    const pending = pendingPengiriman.map(p => ({
+        truckId: p.truckId,
+        kapasitas: Number(p.kapasitas),
+        bb: Number(p.bb),
+        pengiriman: p
+    }));
 
-        if (
-            a.status !== "PENDING" &&
-            b.status === "PENDING"
-        ) {
-            return 1;
-        }
+    const pendingIds = new Set(pendingPengiriman.map(p => p.truckId));
+    const selectedTruck = truckList
+        .filter(t => !pendingIds.has(t.truckId))
+        .map(t => ({
+            truckId: t.truckId,
+            kapasitas: t.kapasitas,
+            bb: t.bb,
+            pengiriman: null
+        }));
 
-        return 0;
-    });
+    const ids = truckList.map(t => t.truckId);
+    const duplicate = ids.find(
+        (id, index) => ids.indexOf(id) !== index
+    );
+    if (duplicate) {
+        throw new Error("Truck tidak boleh dipilih lebih dari satu kali.");
+    }
 
+    const semuaTruck = [...pending, ...selectedTruck];
     const pesanan = await getPesananPending();
-
     const sortedPesanan = sortPesanan(pesanan);
 
     const {
@@ -160,41 +167,25 @@ export const generatePengiriman = async () => {
         tinggi: pesananTinggi,
         sedang: pesananSedang,
         rendah: pesananRendah
-    } = groupPesananByPriority(
-        sortedPesanan
-    );
+    } = groupPesananByPriority(sortedPesanan);
 
     const usedOrders = new Set<number>();
-
     const hasil: any[] = [];
 
-    for (const truck of sortedTrucks) {
-
+    for (const truck of semuaTruck) {
         const kapasitasTruck = Number(truck.kapasitas);
-
         const bbTruck = Number(truck.bb);
+        const lastPengiriman = truck.pengiriman;
 
-        const lastPengiriman =
-            truck.pengiriman[
-            truck.pengiriman.length - 1
-            ];
-
-        let totalBerat = lastPengiriman
-            ? Number(lastPengiriman.totalBerat)
-            : 0;
-
-        let totalHarga = lastPengiriman
-            ? Number(lastPengiriman.totalHarga)
-            : 0;
+        const state = {
+            totalBerat: lastPengiriman ? Number(lastPengiriman.totalBerat) : 0,
+            totalHarga: lastPengiriman ? Number(lastPengiriman.totalHarga) : 0
+        };
 
         const selectedOrders: any[] = lastPengiriman
             ? [...lastPengiriman.pesanan]
             : [];
 
-        const state = {
-            totalBerat,
-            totalHarga
-        };
 
         if (lastPengiriman) {
             for (const pesanan of lastPengiriman.pesanan) {
@@ -202,62 +193,41 @@ export const generatePengiriman = async () => {
             }
         }
 
-        isiTruck(
-            pesananCustom,
-            usedOrders,
-            selectedOrders,
-            kapasitasTruck,
-            state
-        );
+        isiTruck(pesananCustom, usedOrders, selectedOrders, kapasitasTruck, state);
+        isiTruck(pesananTinggi, usedOrders, selectedOrders, kapasitasTruck, state);
+        isiTruck(pesananSedang, usedOrders, selectedOrders, kapasitasTruck, state);
+        isiTruck(pesananRendah, usedOrders, selectedOrders, kapasitasTruck, state);
 
-        isiTruck(
-            pesananTinggi,
-            usedOrders,
-            selectedOrders,
-            kapasitasTruck,
-            state
-        );
-
-        isiTruck(
-            pesananSedang,
-            usedOrders,
-            selectedOrders,
-            kapasitasTruck,
-            state
-        );
-
-        isiTruck(
-            pesananRendah,
-            usedOrders,
-            selectedOrders,
-            kapasitasTruck,
-            state
-        );
-
-        totalBerat = state.totalBerat;
-        totalHarga = state.totalHarga;
-
-        let pengirimanId: number;
-
+        const totalBerat = state.totalBerat;
+        const totalHarga = state.totalHarga;
         const statusPengiriman = totalHarga >= bbTruck
             ? "SIAP BERANGKAT"
             : "PENDING";
 
+        let pengirimanId: number;
+
+
         if (lastPengiriman) {
-            const pengiriman = await updatePengirimanGenerate(
-                lastPengiriman.id,
+            const pengiriman = await updatePengirimanGenerate(lastPengiriman.id, {
+                truckId: truck.truckId,
+                kapasitas: kapasitasTruck,
+                bb: bbTruck,
                 totalBerat,
                 totalHarga,
+                tanggalJalan: lastPengiriman.tanggalJalan,
                 statusPengiriman
-            );
+            });
             pengirimanId = pengiriman.id;
         } else {
-            const pengiriman = await createPengirimanGenerate(
-                truck.id,
+            const pengiriman = await createPengirimanGenerate({
+                truckId: truck.truckId,
+                kapasitas: truck.kapasitas,
+                bb: truck.bb,
                 totalBerat,
                 totalHarga,
+                tanggalJalan: new Date(),
                 statusPengiriman
-            );
+            });
             pengirimanId = pengiriman.id;
         }
 
@@ -271,15 +241,9 @@ export const generatePengiriman = async () => {
             );
         }
 
-        await updateTruckStatus(
-            truck.id,
-            statusPengiriman
-        );
-
         hasil.push({
-            truckId: truck.id,
+            truckId: truck.truckId,
             pengirimanId,
-            truckKode: truck.kode,
             totalBerat,
             kapasitas: kapasitasTruck,
             totalHarga,

@@ -5,26 +5,21 @@ import Alert from "@/components/ui/alert/Alert";
 import Button from "@/components/ui/button/Button";
 import { useModal } from "@/hooks/useModal";
 import { apiRequest } from "@/service/api.service";
-import { Column, truckData } from "@/types";
+import { Column, pengirimanData } from "@/types";
 import { Pencil, PlusCircleIcon, Search, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import TruckModal from "./modal";
+import LaporanModal from "./modal";
 
-export default function Truck() {
-    const [truck, setTruck] = useState<truckData[]>([]);
+export default function Laporan() {
+    const [laporan, setLaporan] = useState<pengirimanData[]>([]);
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState("");
     const { isOpen, openModal, closeModal } = useModal();
     const [mode, setMode] = useState<"create" | "edit">("create");
-    const [errors, setErrors] = useState({
-        platNomor: ""
-    });
     const [form, setForm] = useState({
-        id: 0,
-        platNomor: "",
-        kondisi: "",
-        status: ""
+        bulan: "",
+        tahun: "",
     });
 
     const [meta, setMeta] = useState({
@@ -38,19 +33,18 @@ export default function Truck() {
         message: string;
     } | null>(null);
 
-    const getTruck = async (pageNumber = 1) => {
+    const getLaporan = async (pageNumber = 1) => {
         try {
             setLoading(true);
             const res = await apiRequest({
-                endpoint: `/truckpagination?page=${pageNumber}&limit=10&search=${search}`,
+                endpoint: `/laporan/ringkasan-bulanan`,
                 method: "GET",
             });
-            setTruck(res.data.data);
-            setMeta(res.meta);
+            setLaporan(res.data);
         } catch (error) {
             setAlert({
                 type: "error",
-                message: "Terjadi Kesalahan saat mengambil data truck"
+                message: "Terjadi Kesalahan saat mengambil data Laporan"
             });
         } finally {
             setLoading(false);
@@ -58,12 +52,12 @@ export default function Truck() {
     }
 
     useEffect(() => {
-        getTruck(page);
+        getLaporan(page);
     }, [page, search]);
 
     useEffect(() => {
         const delay = setTimeout(() => {
-            getTruck(1);
+            getLaporan(1);
         }, 500);
 
         return () => clearTimeout(delay);
@@ -78,86 +72,44 @@ export default function Truck() {
 
     const handleCreate = async () => {
         try {
-            await apiRequest({
-                endpoint: "/truck",
-                method: "POST",
-                data: form,
+            const res = await apiRequest({
+                endpoint: `/laporan/export-bulanan?bulan=${form.bulan}&tahun=${form.tahun}`,
+                method: "GET",
+                responseType: "blob",
             });
+
+            const blob = new Blob([res.data], {
+                type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            });
+
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `Laporan-${form.bulan}-${form.tahun}.xlsx`;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+
             closeModal();
             setForm({
-                id: 0,
-                platNomor: "",
-                kondisi: "",
-                status: ""
+                bulan: "",
+                tahun: ""
             });
             setAlert({
                 type: "success",
-                message: "Truck berhasil ditambahkan"
+                message: "Laporan berhasil ditambahkan"
             });
-            getTruck();
+            getLaporan();
         } catch (error: any) {
-            if (
-                error.response?.data?.error ===
-                "Plat nomor sudah ada!"
-            ) {
-                setErrors(prev => ({
-                    ...prev,
-                    platNomor: "Plat nomor sudah ada!"
-                }));
-                return;
-            }
-
             setAlert({
                 type: "error",
-                message: "Terjadi Kesalahan saat menambahkan truck"
+                message: "Terjadi Kesalahan saat export Laporan"
             });
-        }
-    }
-
-    const handleEdit = (row: any) => {
-        setMode("edit");
-
-        setForm({
-            id: row.id,
-            platNomor: row.platNomor,
-            kondisi: row.kondisi,
-            status: row.status
-        });
-
-        openModal();
-    };
-
-    const handleUpdate = async () => {
-        try {
-            await apiRequest({
-                endpoint: `/truck/${form.id}`,
-                method: "PUT",
-                data: {
-                    ...form,
-                }
-            });
-
-            setAlert({
-                type: "success",
-                message: "Truck berhasil diupdate",
-            });
-
-            closeModal();
-            getTruck();
-        } catch (error) {
-            setAlert({
-                type: "error",
-                message: "Gagal membuat update data Truck"
-            });
-            console.error("console.error", error);
         }
     }
     const handleSubmit = async () => {
-        if (mode === "create") {
-            await handleCreate();
-        } else {
-            await handleUpdate();
-        }
+        await handleCreate();
     }
 
     const handleDelete = async (id: number) => {
@@ -166,19 +118,19 @@ export default function Truck() {
 
         try {
             await apiRequest({
-                endpoint: `/truck/${id}`,
+                endpoint: `/laporan/${id}`,
                 method: "DELETE",
             });
 
             setAlert({
                 type: "success",
-                message: "Truck berhasil dihapus",
+                message: "Laporan berhasil dihapus",
             });
-            getTruck();
+            getLaporan();
         } catch (error) {
             setAlert({
                 type: "error",
-                message: "Gagal menghapus Truck",
+                message: "Gagal menghapus Laporan",
             });
             console.error("Gagal delete:", error);
         }
@@ -195,32 +147,11 @@ export default function Truck() {
     }, [alert]);
 
     const columns: Column[] = [
-        { key: "platNomor", label: "Kode / Plat" },
-        { key: "kondisi", label: "Kondisi Truck" },
-        { key: "status", label: "Status Truck" },
-        {
-            key: "action",
-            label: "Action",
-            render: (row: any) => (
-                <div className="flex gap-2">
-
-                    <button
-                        onClick={() => handleEdit(row)}
-                        className="p-2 text-blue-600 hover:bg-blue-100 rounded"
-                    >
-                        <Pencil size={16} />
-                    </button>
-
-                    <button
-                        onClick={() => handleDelete(row.id)}
-                        className="p-2 text-red-600 hover:bg-red-100 rounded"
-                    >
-                        <Trash2 size={16} />
-                    </button>
-
-                </div>
-            ),
-        }
+        { key: "bulan", label: "Bulan" },
+        { key: "totalPendapatan", label: "Total Pendapatan", type: "currency" },
+        { key: "totalBb", label: "Total BB", type: "currency" },
+        { key: "totalPengeluaran", label: "Total Pengeluaran", type: "currency" },
+        { key: "totalLaba", label: "Total Laba", type: "currency" },
     ];
 
     return (
@@ -265,16 +196,14 @@ export default function Truck() {
                             setMode("create");
 
                             setForm({
-                                id: 0,
-                                platNomor: "",
-                                kondisi: "",
-                                status: ""
+                                bulan: "",
+                                tahun: ""
                             });
 
                             openModal();
                         }}
                     >
-                        Truck Baru
+                        Pembuatan Laporan Bulanan
                     </Button>
 
                 </div>
@@ -284,7 +213,7 @@ export default function Truck() {
                             loading ? (
                                 <p>Loading...</p>
                             ) : (
-                                <Table columns={columns} data={truck} />
+                                <Table columns={columns} data={laporan} />
                             )
                         }
                     </div>
@@ -298,13 +227,12 @@ export default function Truck() {
                 </div>
             </div>
 
-            <TruckModal
+            <LaporanModal
                 isOpen={isOpen}
                 onClose={closeModal}
                 form={form}
                 handleChange={handleChange}
                 handleSubmit={handleSubmit}
-                mode={mode}
             />
         </>
     );
