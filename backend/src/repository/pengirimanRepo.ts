@@ -95,7 +95,9 @@ export const updatepengiriman = async (id: number, item: pengirimanData) => {
             bb: item.bb,
             totalHarga: item.totalHarga,
             totalBerat: item.totalBerat,
-            tanggalJalan: item.tanggalJalan,
+            tanggalJalan: item.tanggalJalan
+                ? new Date(item.tanggalJalan)
+                : undefined,
             statusPengiriman: item.statusPengiriman,
             ...(item.sopirIds && {
                 sopir: {

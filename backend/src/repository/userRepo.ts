@@ -30,7 +30,7 @@ export const getUser = async (
         where,
         include: {
             role: true,
-        },orderBy: {
+        }, orderBy: {
             id: "desc",
         }
     });
@@ -109,3 +109,21 @@ export const deleteUser = async (id: number) => {
         where: { id }
     });
 }
+
+export const sopir = async () => {
+    return prisma.user.findMany({
+        where: {
+            roleId: 3
+        },
+        include: {
+            pengiriman: {
+                where: {
+                    statusPengiriman: {
+                        in: ["SIAP BERANGKAT", "DALAM PERJALANAN"]
+                    }
+                },
+                select: { id: true }
+            }
+        }
+    });
+};

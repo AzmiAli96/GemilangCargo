@@ -47,7 +47,7 @@ export default function TruckModal({
         { value: "AKTIF", label: "Aktif" },
         { value: "SERVIS", label: "Service" },
         { value: "RUSAK", label: "Rusak" },
-        { value: "NON AKTIF", label: "Non Aktif" },
+        { value: "NON-AKTIF", label: "Non Aktif" },
     ];
 
     const handleStatusChange = (value: string) => {
@@ -65,10 +65,10 @@ export default function TruckModal({
             <div className="flex flex-col px-2 overflow-y-auto custom-scrollbar">
                 <div>
                     <h5 className="mb-2 font-semibold text-gray-800 modal-title text-theme-xl dark:text-white/90 lg:text-2xl">
-                        {mode === "edit" ? "Ubah Pemasukkan Truck" : "Pembuatan Truck yang akan Berangkat"}
+                        {mode === "edit" ? "Ubah Pemasukkan Truck" : "Pembuatan Truck"}
                     </h5>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Pembuatan Truck, untuk memasukkan data truck baru. pastikan memberikan Harga yang benar.
+                        Pembuatan Truck, untuk memasukkan data truck baru. pastikan memberikan Informasi yang benar.
                     </p>
                 </div>
                 <div className="space-y-4 mt-6">

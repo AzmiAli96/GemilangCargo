@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.css';
 import Label from './Label';
@@ -8,8 +8,9 @@ import DateOption = flatpickr.Options.DateOption;
 
 type PropsType = {
   id: string;
+  name?: string;
   mode?: "single" | "multiple" | "range" | "time";
-  onChange?: Hook | Hook[];
+  onChange?: (e: { target: { name: string; value: string } }) => void;
   defaultDate?: DateOption;
   label?: string;
   placeholder?: string;
@@ -18,6 +19,7 @@ type PropsType = {
 
 export default function DatePicker({
   id,
+  name,
   mode,
   onChange,
   label,
@@ -25,22 +27,42 @@ export default function DatePicker({
   placeholder,
   value
 }: PropsType) {
+  const fpRef = useRef<ReturnType<typeof flatpickr> | null>(null);
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
+
   useEffect(() => {
-    const flatPickr = flatpickr(`#${id}`, {
+    const instance = flatpickr(`#${id}`, {
       mode: mode || "single",
       static: true,
       monthSelectorType: "static",
       dateFormat: "Y-m-d",
       defaultDate: value || defaultDate,
-      onChange,
+      onChange: (_selectedDates, dateStr) => {
+        onChangeRef.current?.({
+          target: {
+            name: name || id,
+            value: dateStr,
+          },
+        });
+      },
     });
 
+    fpRef.current = instance;
+
     return () => {
-      if (!Array.isArray(flatPickr)) {
-        flatPickr.destroy();
+      if (!Array.isArray(instance)) {
+        instance.destroy();
       }
     };
-  }, [mode, onChange, id, defaultDate]);
+  }, [mode, id, name]);
+
+  useEffect(() => {
+    const instance = fpRef.current;
+    if (instance && !Array.isArray(instance)) {
+      instance.setDate(value || "", false);
+    }
+  }, [value]);
 
   return (
     <div>

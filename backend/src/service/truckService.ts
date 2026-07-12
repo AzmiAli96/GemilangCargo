@@ -1,5 +1,5 @@
 import { getPagination, getPagingData } from "../utils/pagination";
-import { allTruck, countTruck, createTruck, deleteTruck, getPlatNomor, TruckById, truckPaginate, updateTruck } from "../repository/truckRepo";
+import { allTruck, countTruck, createTruck, deleteTruck, getPlatNomor, truckAda, TruckById, truckPaginate, updateTruck } from "../repository/truckRepo";
 import { truckData } from "../types/truck";
 
 export const getTruck = async () => {
@@ -43,3 +43,7 @@ export const deleteTruckId = async (id: number) => {
     await deleteTruck(id);
 }
 
+export const getTruckAda = async(item: truckData) => {
+    const result = await truckAda(item);
+    return result
+}

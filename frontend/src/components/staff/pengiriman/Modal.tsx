@@ -50,7 +50,7 @@ export default function PengirimanModal({
         );
     };
 
-    const truckOptions  = (currentIndex: number) => {
+    const truckOptions = (currentIndex: number) => {
         return trucks.filter((truck) => {
             return !selectedTruck.some((selected, index) => index !== currentIndex && selected.truckId === truck.id);
         }).map((truck) => ({
@@ -99,7 +99,7 @@ export default function PengirimanModal({
 
         let valid = true;
 
-        if (!form.sopir1?.trim()) {
+        if (!form.sopir1) {
             newErrors.sopir1 = "Nama wajib diisi";
             valid = false;
         }
@@ -109,10 +109,16 @@ export default function PengirimanModal({
         handleSubmit();
     };
 
-    const optionsSopir = users?.filter((user) => user.roleId === 3).map((user) => ({
-        value: String(user.id),
-        label: user.name,
-    })) || [];
+    const optionsSopir = (currentValue: string) => {
+        return users
+            ?.filter((s) => !s.sedangBerangkat || String(s.id) === currentValue)
+            .map((s) => ({
+                value: String(s.id),
+                label: s.sedangBerangkat
+                    ? `${s.name} (sedang berangkat)`
+                    : s.name,
+            })) || [];
+    };
 
     const handleSopirChange = (field: string, value: string) => {
         handleChange({
@@ -169,7 +175,7 @@ export default function PengirimanModal({
                         {mode === "edit" ? "Edit Pengiriman Barang" : "Generate Pengiriman Barang"}
                     </h5>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Pembuatan Pengiriman Barang. pastikan memberikan informasi yang benar.
+                        {mode === "edit" ? "Pilih sopir untuk truck, tanggal jalan untuk keberangkatan dan status pengiriman" : "Hanya perlu memasukkan truck mana saja yang akan berangkat dan memasukkan kapasitas dan BB untuk barang cargo."}
                     </p>
                 </div>
                 <div className="space-y-4 mt-6">
@@ -179,7 +185,7 @@ export default function PengirimanModal({
                                 <div>
                                     <Label>Sopir 1 *</Label>
                                     <Select
-                                        options={optionsSopir}
+                                        options={optionsSopir(String(form.sopir1 || ""))}
                                         value={String(form.sopir1 || "")}
                                         onChange={(value) => handleSopirChange("sopir1", value)}
                                         placeholder="select sopir"
@@ -190,11 +196,19 @@ export default function PengirimanModal({
                                 <div>
                                     <Label>Sopir 2</Label>
                                     <Select
-                                        options={optionsSopir}
+                                        options={optionsSopir(String(form.sopir2 || ""))}
                                         value={String(form.sopir2 || "")}
                                         onChange={(value) => handleSopirChange("sopir2", value)}
                                         placeholder="select sopir"
                                         className="dark:bg-dark-900"
+                                    />
+                                </div>
+                                <div>
+                                    <Label>Tanggal Keberangkatan</Label>
+                                    <DatePicker
+                                        id="tanggalJalan"
+                                        value={form.tanggalJalan || ""}
+                                        onChange={handleChange}
                                     />
                                 </div>
                                 <div>

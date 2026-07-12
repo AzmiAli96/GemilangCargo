@@ -1,6 +1,6 @@
 import { FilterHarga, pesananData } from "../types/pesanan";
 import { allPesanan, assignpesananToPengiriman, countpesanan, createpesanan, deletepesanan, getpesanan, pesananById, recalculatePengiriman, updatepesanan } from "../repository/pesananRepo";
-import { hitungPrioritas } from "../utils/kmeans";
+import { hitungBeratTagih, hitungPrioritas } from "../utils/kmeans";
 import { readExcel } from "../utils/excel";
 import { prisma } from "../db/prisma";
 import { getHargaById } from "../repository/hargaRepo";
@@ -44,6 +44,7 @@ export const postpesanan = async (item: pesananData) => {
         koli: item.koli,
     });
 
+    const beratTagih = hitungBeratTagih(item.berat);
     let total = 0;
 
     if (item.hargaCustom && item.hargaCustom > 0) {
@@ -59,7 +60,7 @@ export const postpesanan = async (item: pesananData) => {
             throw new Error("harga tidak ditemukan");
         }
 
-        total = item.berat * Number(harga.hargaTarif);
+        total = beratTagih * Number(harga.hargaTarif);
     }
 
     const pesanan = await createpesanan({
@@ -98,6 +99,8 @@ export const putpesanan = async (id: number, item: Partial<pesananData>) => {
     let total = Number(oldPesanan.total);
 
     if (needRecalculate) {
+        const beratTagih = hitungBeratTagih(berat);
+
         const hargaCustom =
             item.hargaCustom != null
                 ? Number(item.hargaCustom)
@@ -113,7 +116,7 @@ export const putpesanan = async (id: number, item: Partial<pesananData>) => {
                     : null;
 
         if (hargaCustom != null && hargaCustom > 0) {
-            total = berat * hargaCustom;
+            total = beratTagih * hargaCustom;
         } else {
             if (!hargaId) {
                 throw new Error("harga ID wajib diisi");
@@ -125,7 +128,7 @@ export const putpesanan = async (id: number, item: Partial<pesananData>) => {
                 throw new Error("harga tidak ditemukan");
             }
 
-            total = berat * Number(harga.hargaTarif);
+            total = beratTagih * Number(harga.hargaTarif);
         }
     }
 

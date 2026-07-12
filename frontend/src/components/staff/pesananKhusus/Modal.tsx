@@ -112,10 +112,10 @@ export default function OrderCustomModal({
             onClose={onClose}
             className="max-w-[700px] p-6 lg:p-10"
         >
-            <div className="flex flex-col px-2 overflow-y-auto custom-scrollbar">
+            <div className="flex flex-col px-2">
                 <div>
                     <h5 className="mb-2 font-semibold text-gray-800 modal-title text-theme-xl dark:text-white/90 lg:text-2xl">
-                        {mode === "edit" ? "Edit User" : "Add User"}
+                        {mode === "edit" ? "Edit Pesanan Barang Khusus" : "Pembuatan Pesanan Barang Khusus"}
                     </h5>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                         Pembuatan Pesanan Khusus untuk customer. pastikan memberikan informasi yang benar.

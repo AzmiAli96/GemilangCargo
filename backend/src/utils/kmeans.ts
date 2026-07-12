@@ -46,3 +46,10 @@ export const hitungPrioritas = (data: DataPoint) => {
 
   return mapping[cluster];
 };
+
+export const hitungBeratTagih = (berat: number): number => {
+    if (berat > 0 && berat < 50) {
+        return 50;
+    }
+    return berat;
+};

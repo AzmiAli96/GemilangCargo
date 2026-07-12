@@ -203,7 +203,7 @@ export default function Laporan() {
                             openModal();
                         }}
                     >
-                        Pembuatan Laporan Bulanan
+                        Export Laporan Bulanan
                     </Button>
 
                 </div>

@@ -78,10 +78,10 @@ export default function LaporanModal({
             <div className="flex flex-col px-2 overflow-y-auto custom-scrollbar">
                 <div>
                     <h5 className="mb-2 font-semibold text-gray-800 modal-title text-theme-xl dark:text-white/90 lg:text-2xl">
-                        Pembuatan Laporan Bulanan
+                        Export Laporan Bulanan
                     </h5>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Pencatana Laporan Bulanan
+                        Pilih Bulan dan tahun yang akan diexport kan
                     </p>
                 </div>
                 <div className="space-y-4 mt-6">
@@ -120,7 +120,7 @@ export default function LaporanModal({
                             onClick={onSubmit}
                             className="btn btn-success btn-update-event flex w-full justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 sm:w-auto"
                         >
-                            Simpan
+                            Export
                         </button>
                     </div>
                 </div>

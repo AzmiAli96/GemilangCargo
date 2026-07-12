@@ -1,5 +1,5 @@
 import { getPagination, getPagingData } from "../utils/pagination";
-import { AllUser, countUser, deleteUser, getUser, getUserEmail, loginUser, registerUser, updateUser, UserById } from "../repository/userRepo";
+import { AllUser, countUser, deleteUser, getUser, getUserEmail, loginUser, registerUser, sopir, updateUser, UserById } from "../repository/userRepo";
 import { userData } from "../types/user";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -78,4 +78,14 @@ export const deleteUserid = async (id: number) => {
 export const getUserById = async (id: number) => {
     const user = await UserById(id);
     return user;
+}
+
+export const getSopir = async () => {
+    const data = await sopir();
+
+    return data.map((s) => ({
+        id: s.id,
+        name: s.name,
+        sedangBerangkat: s.pengiriman.length > 0
+    }));
 }

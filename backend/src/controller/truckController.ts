@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { deleteTruckId, getTruck, getTruckById, getTruckPaginate, postTruck, putTruck } from "../service/truckService";
+import { deleteTruckId, getTruck, getTruckAda, getTruckById, getTruckPaginate, postTruck, putTruck } from "../service/truckService";
 
 export const getTruckController = async (req: Request, res: Response) => {
     try {
@@ -74,4 +74,16 @@ export const deleteTruckController = async (req: Request, res: Response) => {
       message: error.message
     });
   }
+}
+
+export const getTruckAdaController = async (req: Request, res: Response) => {
+    try {
+        const truck = await getTruckAda(req.body);
+        res.status(201).json({
+            message: "Truck berhasil didapatkan",
+            data: truck
+        });
+    } catch (error: any) {
+        res.status(400).json({ error: error.message });
+    }
 }

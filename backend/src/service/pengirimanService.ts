@@ -151,9 +151,7 @@ export const generatePengiriman = async (truckList: GenerateTruckDto[]) => {
         }));
 
     const ids = truckList.map(t => t.truckId);
-    const duplicate = ids.find(
-        (id, index) => ids.indexOf(id) !== index
-    );
+    const duplicate = ids.find((id, index) => ids.indexOf(id) !== index);
     if (duplicate) {
         throw new Error("Truck tidak boleh dipilih lebih dari satu kali.");
     }
@@ -170,59 +168,62 @@ export const generatePengiriman = async (truckList: GenerateTruckDto[]) => {
     } = groupPesananByPriority(sortedPesanan);
 
     const usedOrders = new Set<number>();
-    const hasil: any[] = [];
 
-    for (const truck of semuaTruck) {
-        const kapasitasTruck = Number(truck.kapasitas);
-        const bbTruck = Number(truck.bb);
+    // 1. Bangun truckStates SEKALI SAJA, di luar loop
+    const truckStates = semuaTruck.map(truck => {
         const lastPengiriman = truck.pengiriman;
-
-        const state = {
-            totalBerat: lastPengiriman ? Number(lastPengiriman.totalBerat) : 0,
-            totalHarga: lastPengiriman ? Number(lastPengiriman.totalHarga) : 0
-        };
-
-        const selectedOrders: any[] = lastPengiriman
-            ? [...lastPengiriman.pesanan]
-            : [];
-
-
         if (lastPengiriman) {
-            for (const pesanan of lastPengiriman.pesanan) {
-                usedOrders.add(pesanan.id);
+            for (const p of lastPengiriman.pesanan) {
+                usedOrders.add(p.id);
             }
         }
+        return {
+            truckId: truck.truckId,
+            kapasitasTruck: Number(truck.kapasitas),
+            bbTruck: Number(truck.bb),
+            lastPengiriman,
+            selectedOrders: lastPengiriman ? [...lastPengiriman.pesanan] : [],
+            state: {
+                totalBerat: lastPengiriman ? Number(lastPengiriman.totalBerat) : 0,
+                totalHarga: lastPengiriman ? Number(lastPengiriman.totalHarga) : 0
+            }
+        };
+    });
 
-        isiTruck(pesananCustom, usedOrders, selectedOrders, kapasitasTruck, state);
-        isiTruck(pesananTinggi, usedOrders, selectedOrders, kapasitasTruck, state);
-        isiTruck(pesananSedang, usedOrders, selectedOrders, kapasitasTruck, state);
-        isiTruck(pesananRendah, usedOrders, selectedOrders, kapasitasTruck, state);
+    // 2. Distribusikan pesanan SEKALI SAJA per grup prioritas
+    isiTruck(pesananCustom, usedOrders, truckStates);
+    isiTruck(pesananTinggi, usedOrders, truckStates);
+    isiTruck(pesananSedang, usedOrders, truckStates);
+    isiTruck(pesananRendah, usedOrders, truckStates);
 
-        const totalBerat = state.totalBerat;
-        const totalHarga = state.totalHarga;
-        const statusPengiriman = totalHarga >= bbTruck
+    // 3. Baru loop untuk simpan ke database, baca hasil dari truckStates
+    const hasil: any[] = [];
+
+    for (const t of truckStates) {
+        const totalBerat = t.state.totalBerat;
+        const totalHarga = t.state.totalHarga;
+        const statusPengiriman = totalHarga >= t.bbTruck
             ? "SIAP BERANGKAT"
             : "PENDING";
 
         let pengirimanId: number;
 
-
-        if (lastPengiriman) {
-            const pengiriman = await updatePengirimanGenerate(lastPengiriman.id, {
-                truckId: truck.truckId,
-                kapasitas: kapasitasTruck,
-                bb: bbTruck,
+        if (t.lastPengiriman) {
+            const pengiriman = await updatePengirimanGenerate(t.lastPengiriman.id, {
+                truckId: t.truckId,
+                kapasitas: t.kapasitasTruck,
+                bb: t.bbTruck,
                 totalBerat,
                 totalHarga,
-                tanggalJalan: lastPengiriman.tanggalJalan,
+                tanggalJalan: t.lastPengiriman.tanggalJalan,
                 statusPengiriman
             });
             pengirimanId = pengiriman.id;
         } else {
             const pengiriman = await createPengirimanGenerate({
-                truckId: truck.truckId,
-                kapasitas: truck.kapasitas,
-                bb: truck.bb,
+                truckId: t.truckId,
+                kapasitas: t.kapasitasTruck,
+                bb: t.bbTruck,
                 totalBerat,
                 totalHarga,
                 tanggalJalan: new Date(),
@@ -231,26 +232,21 @@ export const generatePengiriman = async (truckList: GenerateTruckDto[]) => {
             pengirimanId = pengiriman.id;
         }
 
-        for (const order of selectedOrders) {
-            if (order.pengirimanId) {
-                continue;
-            }
-            await updatePesananPengiriman(
-                order.id,
-                pengirimanId
-            );
+        for (const order of t.selectedOrders) {
+            if (order.pengirimanId) continue;
+            await updatePesananPengiriman(order.id, pengirimanId);
         }
 
         hasil.push({
-            truckId: truck.truckId,
+            truckId: t.truckId,
             pengirimanId,
             totalBerat,
-            kapasitas: kapasitasTruck,
+            kapasitas: t.kapasitasTruck,
             totalHarga,
-            bb: bbTruck,
-            bbTerpenuhi: totalHarga >= bbTruck,
+            bb: t.bbTruck,
+            bbTerpenuhi: totalHarga >= t.bbTruck,
             status: statusPengiriman,
-            orders: selectedOrders
+            orders: t.selectedOrders
         });
     }
 

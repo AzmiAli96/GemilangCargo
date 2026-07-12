@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function pagePengirimanPesanan() {
     return (
         <div>
-            <PageBreadcrumb pageTitle="Delivery Order / Pengiriman Barang" />
+            <PageBreadcrumb pageTitle="Detail Pengiriman Barang / Detail Pesanan Barang yang berangkat" />
             <PengirimanPesanan />
         </div>
     )

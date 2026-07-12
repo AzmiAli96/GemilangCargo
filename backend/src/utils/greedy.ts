@@ -66,37 +66,38 @@ export const groupPesananByPriority = (pesanan: any[]) => {
 export const isiTruck = (
   daftarPesanan: any[],
   usedOrders: Set<number>,
-  selectedOrders: any[],
-  kapasitasTruck: number,
-  state: GreedyState
+  truckStates: {
+    truckId: number;
+    kapasitasTruck: number;
+    selectedOrders: any[];
+    state: GreedyState;
+  }[]
 ) => {
 
   for (const order of daftarPesanan) {
-
     if (usedOrders.has(order.id)) {
       continue;
     }
 
-    const beratOrder =
-      Number(order.berat);
+    const beratOrder = Number(order.berat);
+    const hargaOrder = Number(order.total);
 
-    const hargaOrder =
-      Number(order.total);
+    let bestTruck: (typeof truckStates)[number] | null = null;
+    let bestSisaKapasitas = Infinity;
 
-    const nextBerat =
-      state.totalBerat + beratOrder;
-
-    if (
-      nextBerat > kapasitasTruck
-    ) {
-      continue;
+    for (const t of truckStates) {
+      const sisaKapasitas = t.kapasitasTruck - t.state.totalBerat;
+      if (beratOrder <= sisaKapasitas && sisaKapasitas < bestSisaKapasitas) {
+        bestTruck = t;
+        bestSisaKapasitas = sisaKapasitas;
+      }
     }
 
-    selectedOrders.push(order);
+    if (!bestTruck) continue;
 
+    bestTruck.selectedOrders.push(order);
     usedOrders.add(order.id);
-
-    state.totalBerat += beratOrder;
-    state.totalHarga += hargaOrder;
+    bestTruck.state.totalBerat += beratOrder;
+    bestTruck.state.totalHarga += hargaOrder;
   }
 };

@@ -65,10 +65,11 @@ export default function Pengiriman() {
             setLoading(false);
         }
     }
-    const getUsers = async () => {
+    const getUsers = async (pengirimanId?: number) => {
         try {
+            const query = pengirimanId ? `?pengirimanId=${pengirimanId}` : "";
             const res = await apiRequest({
-                endpoint: "/allusers"
+                endpoint: `/sopir${query}`
             });
             console.log("Users:", res);
             setUser(res.data);
@@ -80,10 +81,10 @@ export default function Pengiriman() {
     const getTrucks = async () => {
         try {
             const res = await apiRequest({
-                endpoint: "/truck"
+                endpoint: "/truck-ada"
             });
-            // console.log("Data Full Truck:", res);
-            setTruck(res);
+            console.log("Data Full Truck:", res.data);
+            setTruck(res.data);
         } catch (error) {
             console.error("gagal dapat data Truck:", error);
         }
@@ -173,6 +174,7 @@ export default function Pengiriman() {
             statusPengiriman: row.statusPengiriman || "",
         });
 
+        getUsers(row.id);
         openModal();
     };
 

@@ -1,13 +1,12 @@
 import express from "express";
 import { deleteHargaController, getAllHargaController, getHargaController, postHargaController, putHargaController } from "../controller/hargaController";
-import { deleteUserController, getAllUsersController, getUsersByIdController, getUsersController, loginController, LogoutController, putUserController, registerController } from "../controller/userController";
+import { deleteUserController, getAllUsersController, getSopirController, getUsersByIdController, getUsersController, loginController, LogoutController, putUserController, registerController } from "../controller/userController";
 import { assignpesananToPengirimanController, deletepesananController, getAllPesananController, getpesananByIdController, getpesananController, importpesananController, postpesananController, putpesananController } from "../controller/pesananController";
 import { upload } from "../middleware/upload";
 import { deletepengirimanController, generatePengirimanController, getpengirimanByIdController, getpengirimanController, getpengirimanpaginateController, postpengirimanController, putpengirimanController } from "../controller/pengirimanController";
-import { deleteSopirController, getDeliveryPaginateController, getSopirController, postSopirController, putSopirController } from "../controller/sopirController";
 import { deleteStatusController, getStatusByIdController, getStatusController, getStatusPaginateController, postStatusController, putStatusController } from "../controller/deliverStatusController";
 import { getRoleController } from "../controller/RoleController";
-import { deleteTruckController, getTruckController, getTruckPaginateController, postTruckController, putTruckController } from "../controller/truckController";
+import { deleteTruckController, getTruckAdaController, getTruckController, getTruckPaginateController, postTruckController, putTruckController } from "../controller/truckController";
 import { deletePengeluaranController, getPengeluaranByIdController, getPengeluaranController, getPengeluaranPaginateController, postPengeluaranController, putPengeluaranController } from "../controller/pengeluaranController";
 import { exportLaporanBulananController, getLaporanBulananController, getLaporanPaginateController, getLaporanRingkasanBulananController } from "../controller/laporanController";
 
@@ -18,6 +17,7 @@ router.get("/roles", getRoleController);
 // ================= USER =================
 router.get("/users", getUsersController);
 router.get("/allusers", getAllUsersController);
+router.get("/sopir", getSopirController)
 router.post("/login", loginController);
 router.post("/logout", LogoutController);
 router.post("/register", registerController);
@@ -45,6 +45,7 @@ router.post("/pesanan/import", upload.single("file"), importpesananController);
 // ================= DELIVER Truck =================
 router.get("/truck", getTruckController);
 router.get("/truckpagination", getTruckPaginateController);
+router.get("/truck-ada", getTruckAdaController);
 router.post("/truck", postTruckController);
 router.put("/truck/:id", putTruckController);
 router.delete("/truck/:id", deleteTruckController);

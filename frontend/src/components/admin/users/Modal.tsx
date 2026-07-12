@@ -2,8 +2,11 @@ import Input from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
 import Select from "@/components/form/Select";
 import { Modal } from "@/components/ui/modal";
+import { useAuth } from "@/context/AuthContext";
+import { apiRequest } from "@/service/api.service";
+import { userData } from "@/types";
 import { ChevronDownIcon, EyeClosedIcon, EyeIcon } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type Props = {
     isOpen: boolean;
@@ -24,6 +27,7 @@ export default function UserModal({
     mode,
     roles,
 }: Props) {
+    const { user } = useAuth();
     const [showPassword, setShowPassword] = useState(false);
     const [errors, setErrors] = useState({
         name: "",
@@ -46,7 +50,19 @@ export default function UserModal({
         handleSubmit();
     };
 
-    const options = roles?.map((role) => ({
+
+    const filteredRoles = roles.filter((role) => {
+        if (user?.roleId === 1) {
+            return true;
+        }
+
+        if (user?.roleId === 2) {
+            return role.id === 3 || role.id === 4;
+        }
+        return false;
+    });
+
+    const options = filteredRoles.map((role) => ({
         value: String(role.id),
         label: role.name,
     })) || [];
@@ -94,36 +110,47 @@ export default function UserModal({
                             hint={errors.name}
                         />
                     </div>
-                    <div>
-                        <Label>Email</Label>
-                        <Input name="email"
-                            value={form.email}
-                            onChange={handleChange}
-                            type="email"
-                            placeholder="info@gmail.com"
-                        />
-                    </div>
-
-                    {mode === "create" && (
-                        <div>
-                            <Label>Password</Label>
-                            <div className="relative">
+                    {user?.roleId === 1 && (
+                        <>
+                            <div>
+                                <Label>Email</Label>
                                 <Input
-                                    type={showPassword ? "text" : "password"}
-                                    name="password"
-                                    value={form.password}
+                                    name="email"
+                                    value={form.email}
                                     onChange={handleChange}
-                                    placeholder="Enter password"
+                                    type="email"
+                                    placeholder="info@gmail.com"
                                 />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-4 top-1/2 -translate-y-1/2"
-                                >
-                                    {showPassword ? <EyeIcon /> : <EyeClosedIcon />}
-                                </button>
                             </div>
-                        </div>
+
+                            {mode === "create" && (
+                                <div>
+                                    <Label>Password</Label>
+
+                                    <div className="relative">
+                                        <Input
+                                            type={showPassword ? "text" : "password"}
+                                            name="password"
+                                            value={form.password}
+                                            onChange={handleChange}
+                                            placeholder="Enter password"
+                                        />
+
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                setShowPassword(!showPassword)
+                                            }
+                                            className="absolute right-4 top-1/2 -translate-y-1/2"
+                                        >
+                                            {showPassword
+                                                ? <EyeIcon />
+                                                : <EyeClosedIcon />}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </>
                     )}
 
                     <div>

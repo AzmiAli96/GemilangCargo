@@ -60,3 +60,24 @@ export const getPlatNomor = async (platNomor: string) => {
         where: { platNomor }
     });
 }
+
+export const truckAda = async (item: truckData) => {
+    return prisma.truck.findMany({
+        where: {
+            status: "AKTIF",
+            pengiriman: {
+                none: {
+                    statusPengiriman: {
+                        in: [
+                            "SIAP BERANGKAT",
+                            "DALAM PERJALANAN"
+                        ]
+                    }
+                }
+            }
+        },
+        orderBy: {
+            platNomor: "asc"
+        }
+    });
+}
