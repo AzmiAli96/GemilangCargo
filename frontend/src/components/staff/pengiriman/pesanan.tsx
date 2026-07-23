@@ -391,7 +391,7 @@ export default function PengirimanPesanan() {
                         <div className="text-xl font-semibold text-gray-700 dark:text-white">
                             Plat / Kode:{" "}
                             <div className="mt-2 text-2xl font-bold text-blue-600">
-                                {pengiriman?.truck?.kode || "-"}
+                                {pengiriman?.truck?.platNomor || "-"}
                             </div>
                         </div>
 
@@ -399,7 +399,7 @@ export default function PengirimanPesanan() {
                         <div className="text-xl font-semibold text-gray-700 dark:text-white">
                             Total Kapasitas:{" "}
                             <div className="mt-2 text-2xl font-bold text-green-600">
-                                {formatNumber(Number(pengiriman?.truck?.kapasitas || 0))} KG
+                                {formatNumber(Number(pengiriman?.kapasitas || 0))} KG
                             </div>
                         </div>
 
@@ -407,7 +407,7 @@ export default function PengirimanPesanan() {
                         <div className="text-xl font-semibold text-gray-700 dark:text-white">
                             Biaya Berangkat:{" "}
                             <div className="mt-2 text-2xl font-bold text-purple-600">
-                                Rp {formatNumber(Number(pengiriman?.truck?.bb || 0))}
+                                Rp {formatNumber(Number(pengiriman?.bb || 0))}
                             </div>
                         </div>
 

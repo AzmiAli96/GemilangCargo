@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { deletepesananId, getAllpesanan, getPesananAll, getpesananById, importpesananFromExcel, postpesanan, putAssignpesananTopengiriman, putpesanan } from "../service/pesananService";
+import { deletepesananId, getAllpesanan, getPesananAll, getPesananBulanan, getpesananById, importpesananFromExcel, postpesanan, putAssignpesananTopengiriman, putpesanan } from "../service/pesananService";
 import { FilterHarga } from "../types/pesanan";
 
 export const getAllPesananController = async (req: Request, res: Response) => {
@@ -123,6 +123,24 @@ export const importpesananController = async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(500).json({
       message: error.message,
+    });
+  }
+};
+
+
+export const getPesananBulananController = async (req: Request, res: Response) => {
+  try {
+    const tahun = Number(req.query.tahun) || new Date().getFullYear();
+    const result = await getPesananBulanan(tahun);
+
+    res.status(200).json({
+      message: "Berhasil mengambil data chart",
+      data: result
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      message: "Gagal mengambil data chart",
+      error: error.message
     });
   }
 };

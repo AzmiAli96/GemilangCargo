@@ -189,3 +189,21 @@ export const assignpesananToPengiriman = async (pesananIds: number[], pengiriman
 
     return result;
 };
+
+
+export const getPesananBulananRepo = async (tahun: number) => {
+    const startDate = new Date(tahun, 0, 1);
+    const endDate = new Date(tahun + 1, 0, 1);
+
+    return prisma.pesanan.findMany({
+        where: {
+            tanggalMasuk: {
+                gte: startDate,
+                lt: endDate
+            }
+        },
+        select: {
+            tanggalMasuk: true
+        }
+    });
+};

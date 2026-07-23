@@ -22,6 +22,11 @@ export const getpengirimanpaginate = async (skip: number, take: number) => {
         }, include: {
             truck: true,
             sopir: { include: { role: true, }, },
+            pesanan: {
+                select: {
+                    statusPay: true,
+                },
+            },
         }
     });
     return pengiriman;

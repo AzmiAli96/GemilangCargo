@@ -1,5 +1,5 @@
 import { FilterHarga, pesananData } from "../types/pesanan";
-import { allPesanan, assignpesananToPengiriman, countpesanan, createpesanan, deletepesanan, getpesanan, pesananById, recalculatePengiriman, updatepesanan } from "../repository/pesananRepo";
+import { allPesanan, assignpesananToPengiriman, countpesanan, createpesanan, deletepesanan, getpesanan, getPesananBulananRepo, pesananById, recalculatePengiriman, updatepesanan } from "../repository/pesananRepo";
 import { hitungBeratTagih, hitungPrioritas } from "../utils/kmeans";
 import { readExcel } from "../utils/excel";
 import { prisma } from "../db/prisma";
@@ -229,4 +229,23 @@ export const importpesananFromExcel = async (filePath: string) => {
     });
 
     return pesanans.length;
+};
+
+
+export const getPesananBulanan = async (tahun: number) => {
+
+    const data = await getPesananBulananRepo(tahun);
+
+    const hasil = Array.from({ length: 12 }, (_, index) => ({
+        bulan: index + 1,
+        jumlah: 0
+    }));
+
+    data.forEach((item) => {
+        const bulan = new Date(item.tanggalMasuk).getMonth();
+
+        hasil[bulan].jumlah++;
+    });
+
+    return hasil;
 };

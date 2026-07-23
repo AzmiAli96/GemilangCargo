@@ -146,9 +146,10 @@ export default function OrderModal({
     console.log("form.hargaId", form.hargaId);
     // console.log("optionsUsers", optionsUsers);
 
-    const total =
-        Number(form.berat || 0) *
-        Number(selectedHarga?.hargaTarif || 0);
+    const beratAsli = Number(form.berat || 0);
+    const beratHitung = Math.max(beratAsli, 50);
+
+    const total = beratHitung * Number(selectedHarga?.hargaTarif || 0);
 
     return (
         <Modal
@@ -236,6 +237,11 @@ export default function OrderModal({
                                 KG
                             </span>
                         </div>
+                        {beratAsli < 50 && (
+                            <p className="text-sm text-yellow-600">
+                                Berat di bawah 50 kg, akan dihitung sebagai 50 kg.
+                            </p>
+                        )}
                     </div>
                     <div>
                         <Label>Kota Tujuan *</Label>

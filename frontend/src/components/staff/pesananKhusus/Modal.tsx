@@ -106,6 +106,11 @@ export default function OrderCustomModal({
         });
     };
 
+    const beratAsli = Number(form.berat || 0);
+    const beratHitung = Math.max(beratAsli, 50);
+
+    const total = beratHitung * Number(form.hargaCustom || 0);
+
     return (
         <Modal
             isOpen={isOpen}
@@ -247,20 +252,35 @@ export default function OrderCustomModal({
                         />
                     </div>
 
-                    <div className="flex items-center gap-3 mt-6 modal-footer sm:justify-end">
-                        <button
-                            onClick={onClose}
-                            className="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] sm:w-auto"
-                        >
-                            Batal
-                        </button>
+                    <div className="flex items-center justify-between mt-6 flex-wrap gap-3">
+                        {/* TOTAL */}
+                        <div className="text-lg font-semibold text-gray-800 dark:text-white">
+                            Total:{" "}
+                            <span className="text-brand-500">
+                                {new Intl.NumberFormat("id-ID", {
+                                    style: "currency",
+                                    currency: "IDR",
+                                    minimumFractionDigits: 0,
+                                }).format(total)}
+                            </span>
+                        </div>
 
-                        <button
-                            onClick={onSubmit}
-                            className="btn btn-success btn-update-event flex w-full justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 sm:w-auto"
-                        >
-                            Simpan
-                        </button>
+                        {/* BUTTON */}
+                        <div className="flex items-center gap-3 sm:justify-end">
+                            <button
+                                onClick={onClose}
+                                className="flex w-full justify-center rounded-lg border px-4 py-2.5 text-sm sm:w-auto"
+                            >
+                                Batal
+                            </button>
+                            <button
+                                onClick={onSubmit}
+                                className="flex w-full justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm text-white sm:w-auto"
+                            >
+                                Simpan
+                            </button>
+                        </div>
+
                     </div>
                 </div>
             </div>

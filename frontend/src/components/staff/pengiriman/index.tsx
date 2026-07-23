@@ -11,6 +11,7 @@ import { Package, Pencil, PlusCircleIcon, Search, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import PengirimanModal from "./Modal";
+import Badge from "@/components/ui/badge/Badge";
 
 export default function Pengiriman() {
     const [pengiriman, setPengiriman] = useState<pengirimanData[]>([]);
@@ -276,6 +277,27 @@ export default function Pengiriman() {
         { key: "totalHarga", label: "Total Harga", type: "currency" },
         { key: "tanggalJalan", label: "Tanggal Jalan", type: "date" },
         { key: "statusPengiriman", label: "Status Pengiriman" },
+        {
+            key: "statusLunas",
+            label: "Status",
+            render: (row: any) => {
+                if (!row.pesanan || row.pesanan.length === 0) {
+                    return "-";
+                }
+                const semuaLunas = row.pesanan.every(
+                    (p: any) => p.statusPay === "Lunas"
+                );
+                return semuaLunas ? (
+                    <Badge variant="light" color="success">
+                        Lunas
+                    </Badge>
+                ) : (
+                    <Badge variant="light" color="error">
+                        Belum Lunas
+                    </Badge>
+                );;
+            },
+        },
         {
             key: "action",
             label: "Action",

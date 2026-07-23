@@ -2,6 +2,7 @@ import DatePicker from "@/components/form/date-picker";
 import Input from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
 import Select from "@/components/form/Select";
+import SelectSearch from "@/components/form/SelectSearch";
 import Button from "@/components/ui/button/Button";
 import { Modal } from "@/components/ui/modal";
 import { GenerateTruck, truckData } from "@/types";
@@ -184,7 +185,7 @@ export default function PengirimanModal({
                             <>
                                 <div>
                                     <Label>Sopir 1 *</Label>
-                                    <Select
+                                    <SelectSearch
                                         options={optionsSopir(String(form.sopir1 || ""))}
                                         value={String(form.sopir1 || "")}
                                         onChange={(value) => handleSopirChange("sopir1", value)}
@@ -195,7 +196,7 @@ export default function PengirimanModal({
                                 </div>
                                 <div>
                                     <Label>Sopir 2</Label>
-                                    <Select
+                                    <SelectSearch
                                         options={optionsSopir(String(form.sopir2 || ""))}
                                         value={String(form.sopir2 || "")}
                                         onChange={(value) => handleSopirChange("sopir2", value)}

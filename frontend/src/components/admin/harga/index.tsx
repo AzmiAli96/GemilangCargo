@@ -152,7 +152,7 @@ export default function Hargas() {
     }
 
     const handleDelete = async (id: number) => {
-        const confirmDelete = confirm("Yakin mau hapus user ini?");
+        const confirmDelete = confirm("Yakin mau hapus Data ini?");
         if (!confirmDelete) return;
 
         try {

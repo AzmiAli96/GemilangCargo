@@ -1,4 +1,3 @@
-// K-Means sederhana untuk klasifikasi prioritas pengiriman menyesuaikan dengan dataset
 type DataPoint = {
   berat: number;
   koli: number;
@@ -6,9 +5,9 @@ type DataPoint = {
 
 // centroid dari hasil training Python
 const centroids = [
-  { berat: 0.01331242, koli: 0.00154281 }, // rendah
-  { berat: 0.35661017, koli: 0.12193787 }, // tinggi
-  { berat: 0.09167284, koli: 0.02149923 }, // sedang
+  { berat: 0.01361458, koli: 0.00161088 }, // rendah
+  { berat: 0.3789604, koli: 0.13806728 }, // tinggi
+  { berat: 0.09734678, koli: 0.02279409 }, // sedang
 ];
 
 // normalisasi (MinMax manual)
@@ -16,7 +15,6 @@ const normalize = (value: number, min: number, max: number) => {
   return (value - min) / (max - min);
 };
 
-// ⚠️ HARUS kamu sesuaikan dari dataset
 const MIN_BERAT = 1.0;
 const MAX_BERAT = 6700.0;
 const MIN_KOLI = 1.0;

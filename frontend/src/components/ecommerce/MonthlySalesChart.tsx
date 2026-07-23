@@ -3,15 +3,56 @@ import { ApexOptions } from "apexcharts";
 import dynamic from "next/dynamic";
 import { MoreDotIcon } from "@/icons";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Dropdown } from "../ui/dropdown/Dropdown";
+import { apiRequest } from "@/service/api.service";
 
 // Dynamically import the ReactApexChart component
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
 });
 
+const MONTH_LABELS = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+];
+
 export default function MonthlySalesChart() {
+  const [monthlyData, setMonthlyData] = useState<number[]>(Array(12).fill(0));
+  const [loading, setLoading] = useState(false);
+  const [year, setYear] = useState(new Date().getFullYear());
+
+  const getPesananPerBulan = async () => {
+    try {
+      setLoading(true);
+
+      const res = await apiRequest({
+        endpoint: `/pesanan/bulanan?tahun=${year}`,
+      });
+
+      console.log("Response API:", res);
+      console.log("Response Data:", res.data);
+
+      const counts = Array(12).fill(0);
+
+      res.data.forEach((item: any) => {
+        counts[item.bulan - 1] = item.jumlah;
+      });
+
+      setMonthlyData(counts);
+
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getPesananPerBulan();
+  }, [year]);
+
+
   const options: ApexOptions = {
     colors: ["#465fff"],
     chart: {
@@ -39,20 +80,7 @@ export default function MonthlySalesChart() {
       colors: ["transparent"],
     },
     xaxis: {
-      categories: [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ],
+      categories: MONTH_LABELS,
       axisBorder: {
         show: false,
       },
@@ -67,8 +95,10 @@ export default function MonthlySalesChart() {
       fontFamily: "Outfit",
     },
     yaxis: {
-      title: {
-        text: undefined,
+      min: 0,
+      forceNiceScale: true,
+      labels: {
+        formatter: (value) => Math.round(value).toString(),
       },
     },
     grid: {
@@ -83,18 +113,15 @@ export default function MonthlySalesChart() {
     },
 
     tooltip: {
-      x: {
-        show: false,
-      },
-      y: {
-        formatter: (val: number) => `${val}`,
-      },
-    },
+  y: {
+    formatter: (val) => `${val} Pesanan`,
+  },
+},
   };
   const series = [
     {
-      name: "Sales",
-      data: [168, 385, 201, 298, 187, 195, 291, 110, 215, 390, 280, 112],
+      name: "Jumlah Pesanan",
+      data: monthlyData,
     },
   ];
   const [isOpen, setIsOpen] = useState(false);
@@ -113,30 +140,6 @@ export default function MonthlySalesChart() {
         <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
           Jumlah Pesanan Paket yang diterima dalam Bulanan
         </h3>
-
-        <div className="relative inline-block">
-          <button onClick={toggleDropdown} className="dropdown-toggle">
-            <MoreDotIcon className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300" />
-          </button>
-          <Dropdown
-            isOpen={isOpen}
-            onClose={closeDropdown}
-            className="w-40 p-2"
-          >
-            <DropdownItem
-              onItemClick={closeDropdown}
-              className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
-            >
-              View More
-            </DropdownItem>
-            <DropdownItem
-              onItemClick={closeDropdown}
-              className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
-            >
-              Delete
-            </DropdownItem>
-          </Dropdown>
-        </div>
       </div>
 
       <div className="max-w-full overflow-x-auto custom-scrollbar">

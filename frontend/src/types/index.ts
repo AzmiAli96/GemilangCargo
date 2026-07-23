@@ -57,7 +57,7 @@ export interface pengirimanData {
     sopirIds: number[];
     truckId: number;
     name: string;
-    kapasotas: number;
+    kapasitas: number;
     bb: number;
     totalHarga: number;
     totalBerat: number;

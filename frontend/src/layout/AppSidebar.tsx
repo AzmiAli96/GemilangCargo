@@ -61,7 +61,7 @@ const navItems: NavItem[] = [
     icon: <CircleDollarSign />,
     name: "Harga Tarif Wilayah",
     path: "/harga",
-    roles: [1,2],
+    roles: [1],
   },
   {
     icon: <Package />,
@@ -154,11 +154,10 @@ const AppSidebar: React.FC = () => {
   const pathname = usePathname();
   const { user } = useAuth();
 
-  const filteredNavItems = navItems.filter((item) => {
+const filteredNavItems = navItems.filter((item) => {
     if (!item.roles) return true;
-
     return item.roles.includes(user?.roleId ?? 0);
-  });
+});
 
   const renderMenuItems = (
     navItems: NavItem[],

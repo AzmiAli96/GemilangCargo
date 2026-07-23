@@ -65,6 +65,22 @@ const autoFitColumns = (
     column.width = maxLength;
   });
 };
+// === Style khusus header biru untuk sheet Laba Rugi ===
+const blueHeaderFill: ExcelJS.Fill = {
+  type: "pattern",
+  pattern: "solid",
+  fgColor: { argb: "FF1F4E78" }, // biru gelap
+};
+
+const styleBlueHeaderRow = (row: ExcelJS.Row, colCount: number) => {
+  for (let i = 1; i <= colCount; i++) {
+    const cell = row.getCell(i);
+    cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
+    cell.alignment = { horizontal: "center", vertical: "middle" };
+    cell.fill = blueHeaderFill;
+    cell.border = borderStyle;
+  }
+};
 
 export const generateLaporanExcel = async (laporan: any[], bulan: number, tahun: number, pengeluaran: any[]) => {
   const workbook = new ExcelJS.Workbook();
@@ -233,7 +249,7 @@ export const generateLaporanExcel = async (laporan: any[], bulan: number, tahun:
   autoFitColumns(summarySheet);
 
 
-  const pengeluaranSheet = workbook.addWorksheet("Pengeluaran");
+  const pengeluaranSheet = workbook.addWorksheet("NARACA");
   const PENGELUARAN_COL_COUNT = 4;
 
   pengeluaranSheet.addRow(["NARACA SALDO"]);
@@ -269,12 +285,79 @@ export const generateLaporanExcel = async (laporan: any[], bulan: number, tahun:
   });
   autoFitColumns(pengeluaranSheet);
 
-  // === Ringkasan keseluruhan ===
-  // summarySheet.addRow(["Jumlah Pengiriman", totalPengiriman]);
-  // summarySheet.addRow(["Total Berat", totalBerat]);
-  // summarySheet.addRow(["Total Pendapatan", totalPendapatan]);
-  // summarySheet.addRow(["Total Pengeluaran", totalPengeluaran]);
-  // summarySheet.addRow(["Total Laba", totalLaba]);
+  const labaRugiSheet = workbook.addWorksheet("Laba Rugi");
+  const LABA_RUGI_COL_COUNT = 4; 
+
+  labaRugiSheet.addRow([`LAPORAN LABA RUGI ${periode}`]);
+  styleTitleRow(labaRugiSheet, 1, LABA_RUGI_COL_COUNT);
+
+  labaRugiSheet.addRow([]);
+
+  const labaRugiHeaderRow = labaRugiSheet.addRow([
+    "Kode",
+    "Nama Akun",
+    "Pendapatan",
+    "Pengeluaran",
+  ]);
+  styleBlueHeaderRow(labaRugiHeaderRow, LABA_RUGI_COL_COUNT);
+
+  // --- Baris Pendapatan ---
+  // totalLaba sudah dihitung sebelumnya dari laporan (totalHarga - bb)
+  const pendapatanRow = labaRugiSheet.addRow([
+    "Pendapatan",
+    "Pendapatan Jasa Ekspedisi",
+    formatRupiah(totalLaba),
+    "",
+  ]);
+  styleDataRow(pendapatanRow, LABA_RUGI_COL_COUNT, [1]);
+
+  // --- Baris Pengeluaran per Kategori ---
+  const pengeluaranPerKategori = pengeluaran.reduce(
+    (acc: Record<string, number>, item: any) => {
+      const kategori = item.kategori ?? "Lainnya";
+      const nominal = Number(item.nominal) || 0;
+      acc[kategori] = (acc[kategori] || 0) + nominal;
+      return acc;
+    },
+    {} as Record<string, number>
+  );
+
+  let totalPengeluaranKategori = 0;
+  Object.entries(pengeluaranPerKategori).forEach(([kategori, nominal]) => {
+    totalPengeluaranKategori += nominal;
+    const row = labaRugiSheet.addRow([
+      "Pengeluaran",
+      kategori,
+      "",
+      formatRupiah(nominal),
+    ]);
+    styleDataRow(row, LABA_RUGI_COL_COUNT, [1]);
+  });
+
+  // --- Baris TOTAL ---
+  const totalLabaRugiRow = labaRugiSheet.addRow([
+    "",
+    "TOTAL",
+    formatRupiah(totalLaba),
+    formatRupiah(totalPengeluaranKategori),
+  ]);
+  styleDataRow(totalLabaRugiRow, LABA_RUGI_COL_COUNT);
+  for (let i = 2; i <= LABA_RUGI_COL_COUNT; i++) {
+    totalLabaRugiRow.getCell(i).font = { bold: true };
+  }
+
+  // --- Baris LABA (di bawah TOTAL) ---
+  const labaRow = labaRugiSheet.addRow([
+    "",
+    "LABA",
+    "",
+    formatRupiah(totalLaba - totalPengeluaranKategori),
+  ]);
+  styleDataRow(labaRow, LABA_RUGI_COL_COUNT);
+  labaRow.getCell(2).font = { bold: true };
+  labaRow.getCell(4).font = { bold: true };
+
+  autoFitColumns(labaRugiSheet);
 
   return workbook;
 };
