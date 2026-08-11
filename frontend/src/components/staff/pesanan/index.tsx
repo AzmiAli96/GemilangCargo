@@ -6,7 +6,7 @@ import { useModal } from "@/hooks/useModal";
 import { apiRequest } from "@/service/api.service";
 import { Column, hargaData, pesananData, userData } from "@/types";
 import { Pencil, PlusCircleIcon, Search, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import OrderModal from "./Modal";
 import Badge from "@/components/ui/badge/Badge";
 
@@ -20,7 +20,9 @@ const initialForm = {
     berat: "",
     tujuan: "",
     ket: "",
+    hargaCustom: "",
     prioritas: "",
+    jenisPengiriman: "",
     statusPay: "",
     total: "",
     image: "",
@@ -106,10 +108,11 @@ export default function Pesanan() {
     }, [search]);
 
     const handleChange = (e: any) => {
-        setForm({
-            ...form,
-            [e.target.name]: e.target.value,
-        });
+        const { name, value } = e.target;
+        setForm((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
     };
 
     const handleCreate = async () => {
@@ -154,14 +157,16 @@ export default function Pesanan() {
             hargaId: row.hargaId,
             pengirimanId: row.pengirimanId,
             noSpb: row.noSpb || "",
-            koli: row.koli || "",
-            berat: row.berat || "",
+            koli: String(row.koli ?? ""),
+            berat: String(row.berat ?? ""),
+            hargaCustom: String(row.hargaCustom ?? ""),
             tujuan: row.tujuan || "",
             ket: row.ket || "",
             prioritas: row.prioritas || "",
             statusPay: row.statusPay || "",
             total: row.total || "",
             image: row.image || "",
+            jenisPengiriman: row.jenisPengiriman || "",
         });
 
         openModal();
@@ -173,7 +178,22 @@ export default function Pesanan() {
                 endpoint: `/pesanan/${form.id}`,
                 method: "PUT",
                 data: {
-                    ...form,
+                    userId: Number(form.userId),
+                    hargaId: Number(form.hargaId),
+                    pengirimanId: form.pengirimanId
+                        ? Number(form.pengirimanId)
+                        : null,
+                    noSpb: form.noSpb,
+                    koli: Number(form.koli),
+                    berat: Number(form.berat),
+                    tujuan: form.tujuan,
+                    ket: form.ket,
+                    statusPay: form.statusPay,
+                    jenisPengiriman: form.jenisPengiriman,
+                    hargaCustom:
+                        form.jenisPengiriman === "EXPRESS"
+                            ? 1500
+                            : null,
                 }
             });
 
@@ -225,6 +245,13 @@ export default function Pesanan() {
         }
     }
 
+    // ...di dalam komponen, sebelum return
+    const totalBeratTanpaPengiriman = useMemo(() => {
+        return pesanan
+            .filter((item) => !item.pengirimanId)
+            .reduce((sum, item) => sum + (Number(item.berat) || 0), 0);
+    }, [pesanan]);
+
     useEffect(() => {
         if (alert) {
             const timer = setTimeout(() => {
@@ -242,13 +269,15 @@ export default function Pesanan() {
         { key: "berat", label: "Berat" },
         { key: "tujuan", label: "Alamat Tujuan" },
         { key: "harga.hargaTarif", label: "harga", type: "currency", },
-        {key: "total", label:"Total", type: "currency"},
+        { key: "total", label: "Total", type: "currency" },
         {
             key: "prioritas",
             label: "Prioritas",
             render: (row: any) => {
                 const v = row.prioritas?.trim().toLowerCase() || "";
-
+                if (v.includes("ekspress")) {
+                    return <Badge variant="light" color="success">Prioritas Express</Badge>;
+                }
                 if (v.includes("tinggi")) {
                     return <Badge variant="light" color="error">Prioritas Tinggi</Badge>;
                 }
@@ -256,6 +285,19 @@ export default function Pesanan() {
                     return <Badge variant="light" color="warning">Prioritas Sedang</Badge>;
                 }
                 return <Badge variant="light" color="info">Prioritas Rendah</Badge>;
+            }
+        },
+        {
+            key: "jenisPengiriman",
+            label: "Jenis Pengiriman",
+            render: (row: any) => {
+                const j = row.jenisPengiriman?.trim().toLowerCase() || "";
+
+                if (j.includes("express")) {
+                    return <Badge variant="light" color="warning">Express</Badge>;
+                }
+
+                return <Badge variant="light" color="success">Reguler</Badge>;
             }
         },
         {
@@ -315,6 +357,15 @@ export default function Pesanan() {
                                 />
                             </div>
                         </form>
+                    </div>
+
+                    <div className="hidden lg:flex flex-col items-center">
+                        <span className="text-xs text-gray-400 dark:text-white/40">
+                            Total Berat
+                        </span>
+                        <span className="text-sm font-semibold text-gray-800 dark:text-white/90">
+                            {totalBeratTanpaPengiriman.toLocaleString("id-ID")} kg
+                        </span>
                     </div>
 
                     <Button

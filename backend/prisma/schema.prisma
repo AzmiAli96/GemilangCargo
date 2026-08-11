@@ -49,26 +49,27 @@ model truck {
 }
 
 model pesanan {
-  id           Int         @id @default(autoincrement())
-  userId       Int
-  hargaId      Int?
-  pengirimanId Int?
-  noSpb        String
-  koli         Int
-  berat        Int
-  hargaCustom  Decimal?    @db.Decimal(10, 2)
-  tujuan       String      @db.VarChar(255)
-  ket          String?     @db.VarChar(255)
-  prioritas    String      @db.VarChar(50)
-  statusPay    String?     @default("Belum Lunas")
-  total        Decimal     @db.Decimal(10, 2)
-  tanggalMasuk DateTime    @default(now())
-  image        String?
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  pengiriman   pengiriman? @relation(fields: [pengirimanId], references: [id])
-  harga        harga?      @relation(fields: [hargaId], references: [id])
-  user         user        @relation(fields: [userId], references: [id])
+  id              Int         @id @default(autoincrement())
+  userId          Int
+  hargaId         Int?
+  pengirimanId    Int?
+  noSpb           String
+  koli            Int
+  berat           Int
+  hargaCustom     Decimal?    @db.Decimal(10, 2)
+  tujuan          String      @db.VarChar(255)
+  ket             String?     @db.VarChar(255)
+  prioritas       String      @db.VarChar(50)
+  statusPay       String?     @default("Belum Lunas")
+  jenisPengiriman String      @default("REGULER")
+  total           Decimal     @db.Decimal(10, 2)
+  tanggalMasuk    DateTime    @default(now())
+  image           String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  pengiriman      pengiriman? @relation(fields: [pengirimanId], references: [id])
+  harga           harga?      @relation(fields: [hargaId], references: [id])
+  user            user        @relation(fields: [userId], references: [id])
 }
 
 model pengiriman {
@@ -95,7 +96,7 @@ model pengeluaran {
   nama         String      @db.VarChar(100)
   kategori     String      @db.VarChar(255)
   nominal      Decimal     @db.Decimal(10, 2)
-  keterangan   String?      @db.VarChar(255)
+  keterangan   String?     @db.VarChar(255)
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
   pengiriman   pengiriman? @relation(fields: [pengirimanId], references: [id])

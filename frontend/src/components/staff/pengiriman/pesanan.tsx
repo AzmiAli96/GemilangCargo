@@ -230,6 +230,23 @@ export default function PengirimanPesanan() {
             0
         );
 
+    const getPrioritasOrder = (prioritas: string | undefined): number => {
+        const v = prioritas?.trim().toLowerCase() || "";
+        if (v.includes("ekspress")) return 1;
+        if (v.includes("tinggi")) return 2;
+        if (v.includes("sedang")) return 3;
+        return 4; // Rendah / tidak diketahui
+    };
+
+    const sortByPrioritas = (data: any[]) => {
+        return [...data].sort(
+            (a, b) => getPrioritasOrder(a.prioritas) - getPrioritasOrder(b.prioritas)
+        );
+    };
+
+    // Terapkan sorting ke data sebelum dipakai di tabel
+    const sortedPesananBelumBayar = sortByPrioritas(pesananBelumBayar);
+    const sortedPesananLunas = sortByPrioritas(pesananLunas);
     // const TotalSelected = pesanan
     //     .filter((o) => selectedOrders.includes(o.id))
     //     .reduce((sum, item) => sum + Number(item.total || 0), 0);
@@ -352,7 +369,9 @@ export default function PengirimanPesanan() {
             label: "Prioritas",
             render: (row: any) => {
                 const v = row.prioritas?.trim().toLowerCase() || "";
-
+                if (v.includes("ekspress")) {
+                    return <Badge variant="light" color="success">Prioritas Express</Badge>;
+                }
                 if (v.includes("tinggi")) {
                     return <Badge variant="light" color="error">Prioritas Tinggi</Badge>;
                 }

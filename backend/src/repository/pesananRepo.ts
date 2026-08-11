@@ -18,6 +18,7 @@ export const getpesanan = async (
             { noSpb: { contains: search, mode: "insensitive" as const } },
             { tujuan: { contains: search, mode: "insensitive" as const } },
             { prioritas: { contains: search, mode: "insensitive" as const } },
+            { jenisPengiriman: { contains: search, mode: "insensitive" as const } },
             ...(isNumber
                 ? [{ koli: Number(search) }]
                 : []),
@@ -54,7 +55,7 @@ export const getpesanan = async (
             ...pengirimanWhere,
         },
         orderBy: {
-            prioritas: "desc",
+            noSpb: "desc",
         },
         include: {
             user: true,
@@ -75,6 +76,7 @@ export const countpesanan = async (
             { noSpb: { contains: search, mode: "insensitive" as const } },
             { tujuan: { contains: search, mode: "insensitive" as const } },
             { prioritas: { contains: search, mode: "insensitive" as const } },
+            { jenisPengiriman: { contains: search, mode: "insensitive" as const } },
             ...(isNumber
                 ? [{ koli: Number(search) }]
                 : []),
@@ -125,6 +127,7 @@ export const createpesanan = async (item: pesananData) => {
             berat: item.berat,
             tujuan: item.tujuan,
             hargaCustom: item.hargaCustom,
+            jenisPengiriman: item.jenisPengiriman,
             ket: item.ket,
             prioritas: item.prioritas,
             total: item.total

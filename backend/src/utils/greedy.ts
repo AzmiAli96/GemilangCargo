@@ -83,11 +83,11 @@ export const isiTruck = (
     const hargaOrder = Number(order.total);
 
     let bestTruck: (typeof truckStates)[number] | null = null;
-    let bestSisaKapasitas = Infinity;
+    let bestSisaKapasitas = -Infinity;
 
     for (const t of truckStates) {
       const sisaKapasitas = t.kapasitasTruck - t.state.totalBerat;
-      if (beratOrder <= sisaKapasitas && sisaKapasitas < bestSisaKapasitas) {
+      if (beratOrder <= sisaKapasitas && sisaKapasitas > bestSisaKapasitas) {
         bestTruck = t;
         bestSisaKapasitas = sisaKapasitas;
       }

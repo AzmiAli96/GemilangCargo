@@ -1,4 +1,5 @@
 import Input from "@/components/form/input/InputField";
+import Radio from "@/components/form/input/Radio";
 import TextArea from "@/components/form/input/TextArea";
 import Label from "@/components/form/Label";
 import Select from "@/components/form/Select";
@@ -135,9 +136,29 @@ export default function OrderModal({
 
     const handlePembayaranChange = (value: string) => {
         handleChange({
-            target: { name: "statusPembayaran", value: value },
+            target: { name: "statusPay", value: value },
         });
     };
+
+    const handleJenisPengirimanChange = (
+        value: "REGULER" | "EXPRESS"
+    ) => {
+
+        handleChange({
+            target: {
+                name: "jenisPengiriman",
+                value
+            }
+        });
+
+        handleChange({
+            target: {
+                name: "hargaCustom",
+                value: value === "EXPRESS" ? 1500 : null
+            }
+        });
+    }
+
 
     const selectedHarga = optionsHargas.find(
         (p) => p.value == form.hargaId
@@ -148,8 +169,9 @@ export default function OrderModal({
 
     const beratAsli = Number(form.berat || 0);
     const beratHitung = Math.max(beratAsli, 50);
+    const hargaCustom = Number(form.hargaCustom || 0);
 
-    const total = beratHitung * Number(selectedHarga?.hargaTarif || 0);
+    const total = beratHitung * (Number(selectedHarga?.hargaTarif || 0) + hargaCustom);
 
     return (
         <Modal
@@ -259,6 +281,40 @@ export default function OrderModal({
                             </span>
                         </div>
                     </div>
+                    <div>
+                        <Label>Pengiriman</Label>
+                        <div className="flex items-center gap-6">
+                            <Radio
+                                id="reguler"
+                                name="jenisPengiriman"
+                                value="REGULER"
+                                checked={form.jenisPengiriman === "REGULER"}
+                                onChange={() => handleJenisPengirimanChange("REGULER")}
+                                label="Reguler"
+                            />
+
+                            <Radio
+                                id="express"
+                                name="jenisPengiriman"
+                                value="EXPRESS"
+                                checked={form.jenisPengiriman === "EXPRESS"}
+                                onChange={() => handleJenisPengirimanChange("EXPRESS")}
+                                label="Express"
+                            />
+                        </div>
+                    </div>
+                    {form.jenisPengiriman === "EXPRESS" && (
+                        <div className="mt-4">
+                            <Label>Tambahan Tarif Express</Label>
+                            <Input
+                                type="number"
+                                name="hargaCustom"
+                                value={1500}
+                                readOnly
+                                disabled
+                            />
+                        </div>
+                    )}
                     <div>
                         <Label>Alamat Tujuan *</Label>
                         <Input name="tujuan"

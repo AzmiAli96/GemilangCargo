@@ -9,6 +9,7 @@ export interface pesananData {
     berat: number;
     tujuan: string;
     hargaCustom: number | null;
+    jenisPengiriman: string;
     ket: string | null;
     prioritas: string;
     statusPay: string;

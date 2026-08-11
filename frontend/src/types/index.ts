@@ -49,6 +49,7 @@ export interface pesananData {
     prioritas: string;
     total: number;
     statusPay: string;
+    jenisPengiriman: string;
     image: string;
 }
 

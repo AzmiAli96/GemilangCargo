@@ -37,6 +37,22 @@ const navItems: NavItem[] = [
     path: "/"
     // subItems: [{ name: "Ecommerce", path: "/", pro: false }],
   },
+  {
+    icon: <Users />,
+    name: "Users",
+    path: "/users",
+  },
+  {
+    icon: <CircleDollarSign />,
+    name: "Harga Tarif Wilayah",
+    path: "/harga",
+    roles: [1],
+  },
+  {
+    icon: <Truck />,
+    name: "Pembuatan Truck",
+    path: "/truck"
+  },
   // {
   //   icon: <CalenderIcon />,
   //   name: "Calendar",
@@ -52,47 +68,12 @@ const navItems: NavItem[] = [
   //   name: "Roles",
   //   path: "/roles",
   // },
-  {
-    icon: <Users />,
-    name: "Users",
-    path: "/users",
-  },
-  {
-    icon: <CircleDollarSign />,
-    name: "Harga Tarif Wilayah",
-    path: "/harga",
-    roles: [1],
-  },
-  {
-    icon: <Package />,
-    name: "Pencatatan Barang",
-    path: "/pesanan"
-  },
-  {
-    icon: <PackagePlus />,
-    name: "Pencatatan Barang Custom",
-    path: "/pesananKhusus"
-  },
-  {
-    icon: <Truck />,
-    name: "Pembuatan Truck",
-    path: "/truck"
-  },
-  {
-    icon: <TruckElectric />,
-    name: "Pengiriman Barang",
-    path: "/pengiriman"
-  },
-  {
-    icon: <HandCoins />,
-    name: "Pencatatan Pengeluaran",
-    path: "/pengeluaran"
-  },
-  {
-    icon: <BookTextIcon />,
-    name: "Laporan Bulanan",
-    path: "/laporan"
-  },
+
+  // {
+  //   icon: <PackagePlus />,
+  //   name: "Pencatatan Barang Express",
+  //   path: "/pesananKhusus"
+  // },
   // {
   //   icon: <BookCheck />,
   //   name: "Status Pengiriman",
@@ -116,6 +97,32 @@ const navItems: NavItem[] = [
   //     { name: "404 Error", path: "/error-404", pro: false },
   //   ],
   // },
+];
+
+const operationalItems: NavItem[] = [
+  {
+    icon: <Package />,
+    name: "Pencatatan Barang",
+    path: "/pesanan",
+  },
+  {
+    icon: <TruckElectric />,
+    name: "Pengiriman Barang",
+    path: "/pengiriman",
+  },
+];
+
+const financialItems: NavItem[] = [
+  {
+    icon: <HandCoins />,
+    name: "Pencatatan Pengeluaran",
+    path: "/pengeluaran",
+  },
+  {
+    icon: <BookTextIcon />,
+    name: "Laporan Bulanan",
+    path: "/laporan",
+  },
 ];
 
 const othersItems: NavItem[] = [
@@ -154,14 +161,24 @@ const AppSidebar: React.FC = () => {
   const pathname = usePathname();
   const { user } = useAuth();
 
-const filteredNavItems = navItems.filter((item) => {
+  const filteredNavItems = navItems.filter((item) => {
     if (!item.roles) return true;
     return item.roles.includes(user?.roleId ?? 0);
-});
+  });
+
+  const filteredOperationalItems = operationalItems.filter((item) => {
+    if (!item.roles) return true;
+    return item.roles.includes(user?.roleId ?? 0);
+  });
+
+  const filteredFinancialItems = financialItems.filter((item) => {
+    if (!item.roles) return true;
+    return item.roles.includes(user?.roleId ?? 0);
+  });
 
   const renderMenuItems = (
     navItems: NavItem[],
-    menuType: "main" | "others"
+    menuType: "main" | "operational" | "financial" | "others"
   ) => (
     <ul className="flex flex-col gap-4">
       {navItems.map((nav, index) => (
@@ -277,7 +294,7 @@ const filteredNavItems = navItems.filter((item) => {
   );
 
   const [openSubmenu, setOpenSubmenu] = useState<{
-    type: "main" | "others";
+    type: "main" | "operational" | "financial" | "others";
     index: number;
   } | null>(null);
   const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>(
@@ -289,18 +306,21 @@ const filteredNavItems = navItems.filter((item) => {
   const isActive = useCallback((path: string) => path === pathname, [pathname]);
 
   useEffect(() => {
-    // Check if the current path matches any submenu item
     let submenuMatched = false;
-    ["main", "others"].forEach((menuType) => {
-      const items = menuType === "main" ? navItems : othersItems;
+    (["main", "operational", "financial", "others"] as const).forEach((menuType) => {
+      const items =
+        menuType === "main"
+          ? navItems
+          : menuType === "operational"
+            ? operationalItems
+            : menuType === "financial"
+              ? financialItems
+              : othersItems;
       items.forEach((nav, index) => {
         if (nav.subItems) {
           nav.subItems.forEach((subItem) => {
             if (isActive(subItem.path)) {
-              setOpenSubmenu({
-                type: menuType as "main" | "others",
-                index,
-              });
+              setOpenSubmenu({ type: menuType, index });
               submenuMatched = true;
             }
           });
@@ -308,7 +328,6 @@ const filteredNavItems = navItems.filter((item) => {
       });
     });
 
-    // If no submenu item matches, close the open submenu
     if (!submenuMatched) {
       setOpenSubmenu(null);
     }
@@ -327,7 +346,7 @@ const filteredNavItems = navItems.filter((item) => {
     }
   }, [openSubmenu]);
 
-  const handleSubmenuToggle = (index: number, menuType: "main" | "others") => {
+  const handleSubmenuToggle = (index: number, menuType: "main" | "operational" | "financial" | "others") => {
     setOpenSubmenu((prevOpenSubmenu) => {
       if (
         prevOpenSubmenu &&
@@ -397,12 +416,26 @@ const filteredNavItems = navItems.filter((item) => {
                   }`}
               >
                 {isExpanded || isHovered || isMobileOpen ? (
-                  "Menu"
+                  "Administrasi"
                 ) : (
                   <HorizontaLDots />
                 )}
               </h2>
               {renderMenuItems(filteredNavItems, "main")}
+            </div>
+
+            <div>
+              <h2 className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${!isExpanded && !isHovered ? "lg:justify-center" : "justify-start"}`}>
+                {isExpanded || isHovered || isMobileOpen ? "Operasional" : <HorizontaLDots />}
+              </h2>
+              {renderMenuItems(filteredOperationalItems, "operational")}
+            </div>
+
+            <div>
+              <h2 className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${!isExpanded && !isHovered ? "lg:justify-center" : "justify-start"}`}>
+                {isExpanded || isHovered || isMobileOpen ? "Financial" : <HorizontaLDots />}
+              </h2>
+              {renderMenuItems(filteredFinancialItems, "financial")}
             </div>
 
             <div className="">

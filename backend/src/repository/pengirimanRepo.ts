@@ -47,9 +47,15 @@ export const pengirimanById = async (id: number) => {
 
 
 export const deletepengiriman = async (id: number) => {
-    await prisma.pengiriman.delete({
-        where: { id }
-    });
+    await prisma.$transaction([
+        prisma.pesanan.updateMany({
+            where: { pengirimanId: id },
+            data: { pengirimanId: null },
+        }),
+        prisma.pengiriman.delete({
+            where: { id },
+        }),
+    ]);
 }
 
 // export const getpengirimanWithSummary = async () => {

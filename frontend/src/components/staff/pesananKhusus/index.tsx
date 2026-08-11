@@ -229,21 +229,6 @@ export default function PesananKhusus() {
         { key: "hargaCustom", label: "Harga", type: "currency", },
         { key: "total", label: "Total", type: "currency" },
         {
-            key: "prioritas",
-            label: "Prioritas",
-            render: (row: any) => {
-                const v = row.prioritas?.trim().toLowerCase() || "";
-
-                if (v.includes("tinggi")) {
-                    return <Badge variant="light" color="error">Prioritas Tinggi</Badge>;
-                }
-                if (v.includes("sedang")) {
-                    return <Badge variant="light" color="warning">Prioritas Sedang</Badge>;
-                }
-                return <Badge variant="light" color="info">Prioritas Rendah</Badge>;
-            }
-        },
-        {
             key: "action",
             label: "Action",
             render: (row: any) => (

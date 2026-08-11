@@ -40,8 +40,8 @@ export default function PengirimanModal({
             ...prev,
             {
                 truckId: 0,
-                kapasitas: 0,
-                bb: 0
+                kapasitas: 7000,
+                bb: 10000000
             }
         ]);
     };
@@ -279,21 +279,36 @@ export default function PengirimanModal({
                                                 <div>
                                                     <Label className="text-xs text-gray-500">Kapasitas (KG)</Label>
                                                     <Input
-                                                        type="number"
-                                                        value={item.kapasitas}
-                                                        onChange={(e) =>
-                                                            updateTruck(index, "kapasitas", Number(e.target.value))
+                                                        type="text"
+                                                        inputMode="numeric"
+                                                        value={
+                                                            item.kapasitas
+                                                                ? new Intl.NumberFormat("id-ID").format(item.kapasitas)
+                                                                : ""
                                                         }
+                                                        onChange={(e) => {
+                                                            const rawValue = e.target.value.replace(/\D/g, "");
+                                                            updateTruck(index, "kapasitas", rawValue ? Number(rawValue) : 0);
+                                                        }}
+                                                        placeholder="0"
                                                     />
                                                 </div>
                                                 <div>
                                                     <Label className="text-xs text-gray-500">BB (Rp)</Label>
                                                     <Input
-                                                        type="number"
-                                                        value={item.bb}
-                                                        onChange={(e) =>
-                                                            updateTruck(index, "bb", Number(e.target.value))
+                                                        type="text"
+                                                        inputMode="numeric"
+                                                        value={
+                                                            item.bb
+                                                                ? new Intl.NumberFormat("id-ID").format(item.bb)
+                                                                : ""
                                                         }
+                                                        onChange={(e) => {
+                                                            // hapus semua karakter selain angka (titik pemisah ribuan, dll)
+                                                            const rawValue = e.target.value.replace(/\D/g, "");
+                                                            updateTruck(index, "bb", rawValue ? Number(rawValue) : 0);
+                                                        }}
+                                                        placeholder="0"
                                                     />
                                                 </div>
                                             </div>
